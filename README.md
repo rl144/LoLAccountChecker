@@ -18,6 +18,7 @@ Then select select the file in the *Account* box (double click to open file brow
 * Skins
 * Rune Pages
 * Email Status
+* SoloQ Rank
 
 ### Requirements:
 
