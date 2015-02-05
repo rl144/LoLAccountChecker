@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 using PVPNetConnect;
 
@@ -45,20 +46,20 @@ namespace LoL_Account_Checker
         {
             if (string.IsNullOrEmpty(inputFileTextBox.Text))
             {
-                MessageBox.Show("Account's file missing.");
+                MessageBox.Show(@"Account's file missing.");
                 return;
             }
 
             if (string.IsNullOrEmpty(outputFileTextBox.Text))
             {
-                MessageBox.Show("Output file missing.");
+                MessageBox.Show(@"Output file missing.");
                 return;
             }
 
 
             if (!File.Exists(inputFileTextBox.Text))
             {
-                MessageBox.Show("Account's file does not exist.");
+                MessageBox.Show(@"Account's file does not exist.");
                 return;
             }
 
@@ -99,26 +100,24 @@ namespace LoL_Account_Checker
                         var username = accountData[0];
                         var password = accountData[1];
 
-
-                        var completed = false;
                         var result = Client.Result.Error;
 
                         var client = new Client(region, username, password);
 
-                        client.OnReport += (sender1, r) =>
-                        {
-                            completed = true;
-                            result = r;
-                        };
+                        client.OnReport += (sender1, r) => { result = r; };
 
                         var start = DateTime.Now;
                         while (true)
                         {
                             if (start.AddSeconds(1) > DateTime.Now)
+                            {
                                 continue;
-                            
+                            }
+
                             if (client.Completed)
+                            {
                                 break;
+                            }
 
 
                             start = DateTime.Now;
@@ -127,26 +126,38 @@ namespace LoL_Account_Checker
 
                         if (result == Client.Result.Success)
                         {
-                            sw.WriteLine(
-                                "Account: {0} | Password: {1} | Summoner Name: {2} | Level: {3} | RP: {4} | IP: {5} | Champions: {6} | Skins: {7} | Rune Pages: {8}",
-                                client.Data.Username, client.Data.Password, client.Data.SummonerName, client.Data.Level,
-                                client.Data.RpBalance, client.Data.Ipbalance, client.Data.Champions, client.Data.Skins,
-                                client.Data.RunePages);
+                            var buffer = "Account: " + client.Data.Username;
+                            buffer += " | Password: " + client.Data.Password;
+                            buffer += " | Summoner Name: " + client.Data.SummonerName;
+                            buffer += " | Level: " + client.Data.Level;
+                            buffer += " | RP: " + client.Data.RpBalance;
+                            buffer += " | IP: " + client.Data.Ipbalance;
+                            buffer += " | Champions: " + client.Data.Champions;
+                            buffer += " | Skins: " + client.Data.Skins;
+                            buffer += " | Rune Pages: " + client.Data.RunePages;
+                            buffer += " | Email Status: " + client.Data.EmailStatus;
+
+                            sw.WriteLine(buffer);
 
                             client.Disconnect();
                         }
                         else
                         {
-                            sw.WriteLine(
-                                "Account: {0} | Password: {1} | Error: {2}", client.Data.Username, client.Data.Password,
-                                client.ErrorMessage);
+                            var buffer = "Account: " + client.Data.Username;
+                            buffer += " | Password: " + client.Data.Password;
+                            buffer += " | Error: " + client.ErrorMessage;
+
+                            sw.WriteLine(buffer);
                         }
 
-                        Console.WriteLine("[{0:HH:mm}] <{1}> Completed!", DateTime.Now, client.Data.Username);
+                        Console.WriteLine(@"[{0:HH:mm}] <{1}> Completed!", DateTime.Now, client.Data.Username);
 
                         lineCount++;
 
-                        b.ReportProgress((lineCount * 100) / totalLines);
+                        if (b != null)
+                        {
+                            b.ReportProgress((lineCount * 100) / totalLines);
+                        }
                     }
 
                     sw.Close();
@@ -164,7 +175,9 @@ namespace LoL_Account_Checker
             {
                 button1.Enabled = true;
 
-                if (MessageBox.Show("Finished!\nWanna see the results?", ":^)", MessageBoxButtons.YesNo) ==
+                if (
+                    MessageBox.Show(
+                        "Finished!\nWanna see the results?", @"LoL Account Checker", MessageBoxButtons.YesNo) ==
                     DialogResult.Yes)
                 {
                     Process.Start(outputFileTextBox.Text);
@@ -172,6 +185,23 @@ namespace LoL_Account_Checker
             };
 
             bw.RunWorkerAsync();
+        }
+
+        private void InputFileOnDragDrop(object sender, DragEventArgs e)
+        {
+            var path = (string[]) e.Data.GetData(DataFormats.FileDrop, false);
+            var b = new StringBuilder();
+            foreach (var c in path)
+            {
+                b.Append(c);
+            }
+
+            inputFileTextBox.Text = b.ToString();
+        }
+
+        private void InputFileOnDragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
         }
     }
 }

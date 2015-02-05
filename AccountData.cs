@@ -12,5 +12,6 @@
         public int Skins;
         public string SummonerName;
         public string Username;
+        public string EmailStatus;
     }
 }

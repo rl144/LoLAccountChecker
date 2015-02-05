@@ -35,8 +35,9 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PVPNetConnect">
-      <HintPath>..\..\..\..\..\Desktop\PVPNetConnect-82efc9f2f689d951479802d738e9b62108282843\bin\Debug\PVPNetConnect.dll</HintPath>
+    <Reference Include="PVPNetConnect, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\PVPNetConnect-82efc9f2f689d951479802d738e9b62108282843\bin\Release\PVPNetConnect.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
