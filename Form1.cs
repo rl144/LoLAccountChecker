@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using PVPNetConnect;
 
@@ -109,21 +110,14 @@ namespace LoL_Account_Checker
 
                         var client = new Client(region, username, password);
 
-                        var start = DateTime.Now;
                         while (true)
                         {
-                            if (start.AddSeconds(1) > DateTime.Now)
-                            {
-                                continue;
-                            }
-
                             if (client.Completed)
                             {
                                 break;
                             }
 
-
-                            start = DateTime.Now;
+                            Thread.Sleep(1000);
                         }
 
                         _accountList.Add(client.Data);
