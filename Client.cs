@@ -10,8 +10,6 @@ using PVPNetConnect.RiotObjects.Platform.Catalog.Champion;
 
 namespace LoL_Account_Checker
 {
-    public delegate void Report(object sender, Client.Result result);
-
     public class Client
     {
         public enum Result
@@ -20,17 +18,13 @@ namespace LoL_Account_Checker
             Error
         }
 
-        private bool _completed;
-        public bool Completed { get { return _completed; } }
-
         public PVPNetConnection Connection;
         public AccountData Data;
-        public string ErrorMessage;
 
         public Client(Region region, string username, string password)
         {
             Data = new AccountData { Username = username, Password = password };
-            _completed = false;
+            Completed = false;
 
             Connection = new PVPNetConnection();
             Connection.OnLogin += OnLogin;
@@ -41,10 +35,15 @@ namespace LoL_Account_Checker
             Console.WriteLine(@"[{0:HH:mm}] <{1}> Connecting to PvP.net", DateTime.Now, Data.Username);
         }
 
-        public event Report OnReport;
+        public bool Completed { get; private set; }
 
         public void Disconnect()
         {
+            if (!Connection.IsConnected())
+            {
+                return;
+            }
+
             Connection.Disconnect();
             Console.WriteLine(@"[{0:HH:mm}] <{1}> Disconnecting", DateTime.Now, Data.Username);
         }
@@ -57,25 +56,30 @@ namespace LoL_Account_Checker
 
         private void OnError(object sender, Error error)
         {
+            if (Completed)
+            {
+                return;
+            }
+
             switch (error.Type)
             {
                 case ErrorType.AuthKey:
-                    ErrorMessage = "Unable to authenticate";
+                    Data.ErrorMessage = "Unable to authenticate";
                     break;
                 case ErrorType.Connect:
-                    ErrorMessage = "Unable to connect to PvP.Net";
+                    Data.ErrorMessage = "Unable to connect to PvP.Net";
                     break;
                 default:
-                    ErrorMessage = string.Format("Unregisted error - Type: {0} - Code: {1}", error.Type, error.ErrorCode);
+                    Data.ErrorMessage = string.Format(
+                        "Unregisted error - Type: {0} - Code: {1}", error.Type, error.ErrorCode);
 #if DEBUG
                     ErrorMessage += string.Format(" - Message: {0}", error.Message)
 #endif
                     break;
             }
 
-            Console.WriteLine(@"[{0:HH:mm}] <{1}> Error: {2}", DateTime.Now, Data.Username, ErrorMessage);
+            Console.WriteLine(@"[{0:HH:mm}] <{1}> Error: {2}", DateTime.Now, Data.Username, Data.ErrorMessage);
 
-            _completed = true;
             Report(Result.Error);
         }
 
@@ -84,6 +88,9 @@ namespace LoL_Account_Checker
             var loginPacket = await Connection.GetLoginDataPacketForUser();
             if (loginPacket.AllSummonerData == null)
             {
+                Data.ErrorMessage = "Summoner not created.";
+                Console.WriteLine(@"[{0:HH:mm}] <{1}> Error: {2}", DateTime.Now, Data.Username, Data.ErrorMessage);
+                Report(Result.Error);
                 return;
             }
 
@@ -104,17 +111,28 @@ namespace LoL_Account_Checker
             Data.SummonerName = loginPacket.AllSummonerData.Summoner.Name;
             Data.EmailStatus = loginPacket.EmailStatus;
 
+            // Leagues
+            if (Data.Level == 30)
+            {
+                var myLeagues = await Connection.GetMyLeaguePositions();
+                var soloqLeague = myLeagues.SummonerLeagues.FirstOrDefault(l => l.QueueType == "RANKED_SOLO_5x5");
+                Data.SoloQRank = soloqLeague != null
+                    ? string.Format("{0} {1}", soloqLeague.Tier, soloqLeague.Rank)
+                    : "UNRANKED";
+            }
+            else
+            {
+                Data.SoloQRank = "UNRANKED";
+            }
+
             Console.WriteLine(@"[{0:HH:mm}] <{1}> Data received!", DateTime.Now, Data.Username);
-            _completed = true;
             Report(Result.Success);
         }
 
         protected virtual void Report(Result result)
         {
-            if (OnReport != null)
-            {
-                OnReport(this, result);
-            }
+            Data.Result = result;
+            Completed = true;
         }
     }
 }

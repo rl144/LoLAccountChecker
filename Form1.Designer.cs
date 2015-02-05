@@ -37,13 +37,17 @@
             this.button1 = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
+            this.ExportErrors = new System.Windows.Forms.CheckBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.ExportHTML = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 100);
+            this.label1.Location = new System.Drawing.Point(10, 18);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(55, 13);
             this.label1.TabIndex = 0;
@@ -52,7 +56,7 @@
             // inputFileTextBox
             // 
             this.inputFileTextBox.AllowDrop = true;
-            this.inputFileTextBox.Location = new System.Drawing.Point(73, 97);
+            this.inputFileTextBox.Location = new System.Drawing.Point(71, 15);
             this.inputFileTextBox.Name = "inputFileTextBox";
             this.inputFileTextBox.Size = new System.Drawing.Size(208, 20);
             this.inputFileTextBox.TabIndex = 1;
@@ -63,7 +67,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(25, 126);
+            this.label2.Location = new System.Drawing.Point(23, 44);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(42, 13);
             this.label2.TabIndex = 2;
@@ -72,7 +76,7 @@
             // outputFileTextBox
             // 
             this.outputFileTextBox.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.outputFileTextBox.Location = new System.Drawing.Point(73, 123);
+            this.outputFileTextBox.Location = new System.Drawing.Point(71, 41);
             this.outputFileTextBox.Name = "outputFileTextBox";
             this.outputFileTextBox.Size = new System.Drawing.Size(208, 20);
             this.outputFileTextBox.TabIndex = 1;
@@ -81,7 +85,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(23, 152);
+            this.label3.Location = new System.Drawing.Point(21, 70);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(44, 13);
             this.label3.TabIndex = 3;
@@ -113,14 +117,14 @@
             "OCE",
             "LAN",
             "LAS"});
-            this.regionsComboBox.Location = new System.Drawing.Point(73, 149);
+            this.regionsComboBox.Location = new System.Drawing.Point(71, 67);
             this.regionsComboBox.Name = "regionsComboBox";
             this.regionsComboBox.Size = new System.Drawing.Size(208, 21);
             this.regionsComboBox.TabIndex = 4;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(216, 176);
+            this.button1.Location = new System.Drawing.Point(214, 94);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(65, 27);
             this.button1.TabIndex = 5;
@@ -144,12 +148,45 @@
             this.toolStripProgressBar1.Name = "toolStripProgressBar1";
             this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 16);
             // 
+            // ExportErrors
+            // 
+            this.ExportErrors.AutoSize = true;
+            this.ExportErrors.Location = new System.Drawing.Point(6, 19);
+            this.ExportErrors.Name = "ExportErrors";
+            this.ExportErrors.Size = new System.Drawing.Size(85, 17);
+            this.ExportErrors.TabIndex = 7;
+            this.ExportErrors.Text = "Export errors";
+            this.ExportErrors.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.ExportHTML);
+            this.groupBox1.Controls.Add(this.ExportErrors);
+            this.groupBox1.Location = new System.Drawing.Point(12, 127);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(267, 68);
+            this.groupBox1.TabIndex = 8;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Config";
+            // 
+            // ExportHTML
+            // 
+            this.ExportHTML.AutoSize = true;
+            this.ExportHTML.Location = new System.Drawing.Point(6, 42);
+            this.ExportHTML.Name = "ExportHTML";
+            this.ExportHTML.Size = new System.Drawing.Size(103, 17);
+            this.ExportHTML.TabIndex = 8;
+            this.ExportHTML.Text = "Export as HTML";
+            this.ExportHTML.UseVisualStyleBackColor = true;
+            this.ExportHTML.CheckedChanged += new System.EventHandler(this.ExportHTML_OnChangeChecked);
+            // 
             // Form1
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(291, 229);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.regionsComboBox);
@@ -165,6 +202,8 @@
             this.Text = "LoL Account Checker";
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -181,6 +220,9 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
+        private System.Windows.Forms.CheckBox ExportErrors;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.CheckBox ExportHTML;
     }
 }
 

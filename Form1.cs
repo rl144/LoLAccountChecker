@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -15,6 +16,8 @@ namespace LoL_Account_Checker
 {
     public partial class Form1 : Form
     {
+        private List<AccountData> _accountList;
+
         public Form1()
         {
             InitializeComponent();
@@ -34,7 +37,11 @@ namespace LoL_Account_Checker
 
         private void OutputFileTextBoxDClick(object sender, EventArgs e)
         {
-            var sfd = new SaveFileDialog { FileName = "output.txt" };
+            var sfd = new SaveFileDialog
+            {
+                FileName = "output" + (ExportHTML.Checked ? ".html" : ".txt"),
+                Filter = ExportHTML.Checked ? "HTML (.html)|" : "Text file (.txt)|"
+            };
 
             if (sfd.ShowDialog() == DialogResult.OK)
             {
@@ -67,6 +74,7 @@ namespace LoL_Account_Checker
 
             var region = (Region) regionsComboBox.SelectedIndex;
 
+            _accountList = new List<AccountData>();
 
             var bw = new BackgroundWorker { WorkerReportsProgress = true };
 
@@ -77,7 +85,6 @@ namespace LoL_Account_Checker
                     var b = o as BackgroundWorker;
 
                     var sr = new StreamReader(inputFileTextBox.Text);
-                    var sw = new StreamWriter(outputFileTextBox.Text);
 
                     var totalLines = sr.ReadToEnd().Split(new[] { '\n' }).Count();
 
@@ -100,11 +107,7 @@ namespace LoL_Account_Checker
                         var username = accountData[0];
                         var password = accountData[1];
 
-                        var result = Client.Result.Error;
-
                         var client = new Client(region, username, password);
-
-                        client.OnReport += (sender1, r) => { result = r; };
 
                         var start = DateTime.Now;
                         while (true)
@@ -121,34 +124,10 @@ namespace LoL_Account_Checker
 
 
                             start = DateTime.Now;
-                            // wait
                         }
 
-                        if (result == Client.Result.Success)
-                        {
-                            var buffer = "Account: " + client.Data.Username;
-                            buffer += " | Password: " + client.Data.Password;
-                            buffer += " | Summoner Name: " + client.Data.SummonerName;
-                            buffer += " | Level: " + client.Data.Level;
-                            buffer += " | RP: " + client.Data.RpBalance;
-                            buffer += " | IP: " + client.Data.Ipbalance;
-                            buffer += " | Champions: " + client.Data.Champions;
-                            buffer += " | Skins: " + client.Data.Skins;
-                            buffer += " | Rune Pages: " + client.Data.RunePages;
-                            buffer += " | Email Status: " + client.Data.EmailStatus;
-
-                            sw.WriteLine(buffer);
-
-                            client.Disconnect();
-                        }
-                        else
-                        {
-                            var buffer = "Account: " + client.Data.Username;
-                            buffer += " | Password: " + client.Data.Password;
-                            buffer += " | Error: " + client.ErrorMessage;
-
-                            sw.WriteLine(buffer);
-                        }
+                        _accountList.Add(client.Data);
+                        client.Disconnect();
 
                         Console.WriteLine(@"[{0:HH:mm}] <{1}> Completed!", DateTime.Now, client.Data.Username);
 
@@ -160,7 +139,15 @@ namespace LoL_Account_Checker
                         }
                     }
 
-                    sw.Close();
+                    if (ExportHTML.Checked)
+                    {
+                        Export.ExportAsHTML(outputFileTextBox.Text, _accountList, ExportErrors.Checked);
+                    }
+                    else
+                    {
+                        Export.ExportAsText(outputFileTextBox.Text, _accountList, ExportErrors.Checked);
+                    }
+
                     sr.Close();
                 }
                 catch (Exception ex)
@@ -180,7 +167,9 @@ namespace LoL_Account_Checker
                         "Finished!\nWanna see the results?", @"LoL Account Checker", MessageBoxButtons.YesNo) ==
                     DialogResult.Yes)
                 {
-                    Process.Start(outputFileTextBox.Text);
+                    var file = outputFileTextBox.Text;
+
+                    Process.Start(file);
                 }
             };
 
@@ -202,6 +191,38 @@ namespace LoL_Account_Checker
         private void InputFileOnDragEnter(object sender, DragEventArgs e)
         {
             e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+        }
+
+        private void ExportHTML_OnChangeChecked(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(outputFileTextBox.Text))
+            {
+                return;
+            }
+
+            var newExtension = ExportHTML.Checked ? ".html" : ".txt";
+
+            var newFile = Path.ChangeExtension(outputFileTextBox.Text, newExtension);
+
+            if (newFile == outputFileTextBox.Text)
+            {
+                return;
+            }
+
+
+            if (File.Exists(newFile))
+            {
+                if (
+                    MessageBox.Show(
+                        "There is already a file with the same name of the \"Output\" file.\nDo you wanna overwrite?",
+                        @"LoL Account Checker", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                {
+                    ExportHTML.Checked = !ExportHTML.Checked;
+                    return;
+                }
+            }
+
+            outputFileTextBox.Text = newFile;
         }
     }
 }
