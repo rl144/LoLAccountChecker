@@ -17,6 +17,7 @@ Then select select the file in the *Account* box (double click to open file brow
 * Champions
 * Skins
 * Rune Pages
+* Email Status
 
 ### Requirements:
 
