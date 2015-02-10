@@ -28,30 +28,36 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.label1 = new System.Windows.Forms.Label();
+            this.inputLabel = new System.Windows.Forms.Label();
             this.inputFileTextBox = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
+            this.outputLabel = new System.Windows.Forms.Label();
             this.outputFileTextBox = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
+            this.regionLabel = new System.Windows.Forms.Label();
             this.regionsComboBox = new System.Windows.Forms.ComboBox();
             this.button1 = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
+            this.toolStripSpacer1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripNewAccount = new System.Windows.Forms.ToolStripStatusLabel();
             this.ExportErrors = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.ExportHTML = new System.Windows.Forms.CheckBox();
+            this.donateLink = new System.Windows.Forms.LinkLabel();
             this.statusStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
-            // label1
+            // inputLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(10, 18);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(55, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Accounts:";
+            this.inputLabel.AutoSize = true;
+            this.inputLabel.Location = new System.Drawing.Point(10, 18);
+            this.inputLabel.Name = "inputLabel";
+            this.inputLabel.Size = new System.Drawing.Size(55, 13);
+            this.inputLabel.TabIndex = 0;
+            this.inputLabel.Text = "Accounts:";
             // 
             // inputFileTextBox
             // 
@@ -64,14 +70,14 @@
             this.inputFileTextBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.InputFileOnDragEnter);
             this.inputFileTextBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.InputFileTextBoxDClick);
             // 
-            // label2
+            // outputLabel
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(23, 44);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(42, 13);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "Output:";
+            this.outputLabel.AutoSize = true;
+            this.outputLabel.Location = new System.Drawing.Point(23, 44);
+            this.outputLabel.Name = "outputLabel";
+            this.outputLabel.Size = new System.Drawing.Size(42, 13);
+            this.outputLabel.TabIndex = 2;
+            this.outputLabel.Text = "Output:";
             // 
             // outputFileTextBox
             // 
@@ -82,14 +88,14 @@
             this.outputFileTextBox.TabIndex = 1;
             this.outputFileTextBox.DoubleClick += new System.EventHandler(this.OutputFileTextBoxDClick);
             // 
-            // label3
+            // regionLabel
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(21, 70);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(44, 13);
-            this.label3.TabIndex = 3;
-            this.label3.Text = "Region:";
+            this.regionLabel.AutoSize = true;
+            this.regionLabel.Location = new System.Drawing.Point(21, 70);
+            this.regionLabel.Name = "regionLabel";
+            this.regionLabel.Size = new System.Drawing.Size(44, 13);
+            this.regionLabel.TabIndex = 3;
+            this.regionLabel.Text = "Region:";
             // 
             // regionsComboBox
             // 
@@ -135,8 +141,10 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripProgressBar1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 207);
+            this.toolStripProgressBar1,
+            this.toolStripSpacer1,
+            this.toolStripNewAccount});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 214);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(291, 22);
             this.statusStrip1.SizingGrip = false;
@@ -147,6 +155,19 @@
             // 
             this.toolStripProgressBar1.Name = "toolStripProgressBar1";
             this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 16);
+            // 
+            // toolStripSpacer1
+            // 
+            this.toolStripSpacer1.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.toolStripSpacer1.Name = "toolStripSpacer1";
+            this.toolStripSpacer1.Size = new System.Drawing.Size(93, 17);
+            this.toolStripSpacer1.Text = "toolStripSpacer1";
+            // 
+            // toolStripNewAccount
+            // 
+            this.toolStripNewAccount.Name = "toolStripNewAccount";
+            this.toolStripNewAccount.Size = new System.Drawing.Size(0, 17);
+            this.toolStripNewAccount.Text = "toolStripSpacer1";
             // 
             // ExportErrors
             // 
@@ -160,6 +181,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Controls.Add(this.numericUpDown1);
             this.groupBox1.Controls.Add(this.ExportHTML);
             this.groupBox1.Controls.Add(this.ExportErrors);
             this.groupBox1.Location = new System.Drawing.Point(12, 127);
@@ -168,6 +191,37 @@
             this.groupBox1.TabIndex = 8;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Config";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(164, 20);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(49, 13);
+            this.label4.TabIndex = 10;
+            this.label4.Text = "Threads:";
+            // 
+            // numericUpDown1
+            // 
+            this.numericUpDown1.Location = new System.Drawing.Point(219, 18);
+            this.numericUpDown1.Maximum = new decimal(new int[] {
+            250,
+            0,
+            0,
+            0});
+            this.numericUpDown1.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDown1.Name = "numericUpDown1";
+            this.numericUpDown1.Size = new System.Drawing.Size(42, 20);
+            this.numericUpDown1.TabIndex = 9;
+            this.numericUpDown1.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
             // 
             // ExportHTML
             // 
@@ -180,21 +234,33 @@
             this.ExportHTML.UseVisualStyleBackColor = true;
             this.ExportHTML.CheckedChanged += new System.EventHandler(this.ExportHTML_OnChangeChecked);
             // 
+            // donateLink
+            // 
+            this.donateLink.AutoSize = true;
+            this.donateLink.Location = new System.Drawing.Point(237, 198);
+            this.donateLink.Name = "donateLink";
+            this.donateLink.Size = new System.Drawing.Size(42, 13);
+            this.donateLink.TabIndex = 9;
+            this.donateLink.TabStop = true;
+            this.donateLink.Text = "Donate";
+            this.donateLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.donateLink_LinkClicked);
+            // 
             // Form1
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(291, 229);
+            this.ClientSize = new System.Drawing.Size(291, 236);
+            this.Controls.Add(this.donateLink);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.regionsComboBox);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.regionLabel);
+            this.Controls.Add(this.outputLabel);
             this.Controls.Add(this.outputFileTextBox);
             this.Controls.Add(this.inputFileTextBox);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.inputLabel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "Form1";
@@ -204,6 +270,7 @@
             this.statusStrip1.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -211,11 +278,11 @@
 
         #endregion
 
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label inputLabel;
         private System.Windows.Forms.TextBox inputFileTextBox;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label outputLabel;
         private System.Windows.Forms.TextBox outputFileTextBox;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label regionLabel;
         private System.Windows.Forms.ComboBox regionsComboBox;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.StatusStrip statusStrip1;
@@ -223,6 +290,11 @@
         private System.Windows.Forms.CheckBox ExportErrors;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.CheckBox ExportHTML;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripSpacer1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripNewAccount;
+        private System.Windows.Forms.LinkLabel donateLink;
     }
 }
 

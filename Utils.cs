@@ -1,17 +1,44 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
-
-#endregion
 
 namespace LoL_Account_Checker
 {
-    public static class Export
+    class Utils
     {
-        public static void ExportAsHTML(string file, List<AccountData> accounts, bool exportErrors)
+        public static List<LoginData> GetLogins(string file)
+        {
+            var logins = new List<LoginData>();
+
+            try
+            {
+                var sr = new StreamReader(file);
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    var accountData = line.Split(new[] { ':' });
+
+                    if (accountData.Count() < 2)
+                    {
+                        continue;
+                    }
+
+                    var loginData = new LoginData(accountData[0], accountData[1]);
+
+                    logins.Add(loginData);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            return logins;
+        }
+
+        public static void ExportAsHtml(string file, List<AccountData> accounts, bool exportErrors)
         {
             var sb = new StringBuilder();
 
@@ -40,10 +67,12 @@ namespace LoL_Account_Checker
             sb.Append("             <th>Champions</th>\n");
             sb.Append("             <th>Skins</th>\n");
             sb.Append("             <th>Rune Pages</th>\n");
+            sb.Append("             <th>Rank</th>\n");
+            sb.Append("             <th>Last Play</th>\n");
             sb.Append("         </tr>\n");
 
             var i = 0;
-            foreach (var account in accounts)
+            foreach (var account in accounts.OrderByDescending(a => a.Result == Client.Result.Success))
             {
                 if (account.Result == Client.Result.Error && !exportErrors)
                 {
@@ -72,6 +101,8 @@ namespace LoL_Account_Checker
                 sb.Append("             <td>" + account.Champions + "</td>\n");
                 sb.Append("             <td>" + account.Skins + "</td>\n");
                 sb.Append("             <td>" + account.RunePages + "</td>\n");
+                sb.Append("             <td>" + account.SoloQRank + "</td>\n");
+                sb.Append("             <td>" + account.LastPlay + "</td>\n");
                 sb.Append("         </tr>\n");
 
                 i++;
@@ -92,9 +123,9 @@ namespace LoL_Account_Checker
 
             sb.Append(hr);
 
-            foreach (var account in accounts)
+            foreach (var account in accounts.OrderByDescending(a => a.Result == Client.Result.Success))
             {
-                sb.Append("Account: " + account.Username + Environment.NewLine);
+                sb.Append("Username: " + account.Username + Environment.NewLine);
                 sb.Append("Password: " + account.Password + Environment.NewLine);
 
                 if (account.Result == Client.Result.Error)
@@ -117,6 +148,8 @@ namespace LoL_Account_Checker
                 sb.Append("Skins: " + account.Skins + Environment.NewLine);
                 sb.Append("Rune Pages: " + account.RunePages + Environment.NewLine);
                 sb.Append("Email Status: " + account.EmailStatus + Environment.NewLine);
+                sb.Append("Rank: " + account.SoloQRank + Environment.NewLine);
+                sb.Append("Last Play: " + account.LastPlay + Environment.NewLine);
                 sb.Append(hr);
             }
 

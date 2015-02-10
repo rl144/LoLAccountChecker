@@ -1,11 +1,8 @@
 ﻿#region
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -15,15 +12,22 @@ using PVPNetConnect;
 
 namespace LoL_Account_Checker
 {
+    internal delegate void SetControlsEnabled(bool value);
+
     public partial class Form1 : Form
     {
-        private List<AccountData> _accountList;
-
         public Form1()
         {
             InitializeComponent();
 
             regionsComboBox.SelectedIndex = 0;
+            Checker.OnFinishedChecking += Checker_OnFinishedChecking;
+            Checker.OnNewAccount += Checker_OnNewAccount;
+
+            toolStripSpacer1.Spring = true;
+            toolStripSpacer1.Text = string.Empty;
+
+            toolStripNewAccount.Text = string.Empty;
         }
 
         private void InputFileTextBoxDClick(object sender, MouseEventArgs e)
@@ -71,107 +75,30 @@ namespace LoL_Account_Checker
                 return;
             }
 
-            button1.Enabled = false;
+            ChangeControlsStatus(false);
 
             var region = (Region) regionsComboBox.SelectedIndex;
+            var logins = Utils.GetLogins(inputFileTextBox.Text);
 
-            _accountList = new List<AccountData>();
+            toolStripProgressBar1.Value = 0;
+            toolStripNewAccount.Text = string.Empty;
 
-            var bw = new BackgroundWorker { WorkerReportsProgress = true };
+            var thread =
+                new Thread(
+                    () =>
+                        Checker.Start(
+                            logins, region, (int) numericUpDown1.Value, outputFileTextBox.Text, ExportHTML.Checked));
 
-            bw.DoWork += (o, args) =>
-            {
-                try
-                {
-                    var b = o as BackgroundWorker;
-
-                    var sr = new StreamReader(inputFileTextBox.Text);
-
-                    var totalLines = sr.ReadToEnd().Split(new[] { '\n' }).Count();
-
-                    var lineCount = 0;
-
-                    sr.DiscardBufferedData();
-                    sr.BaseStream.Seek(0, SeekOrigin.Begin);
-                    sr.BaseStream.Position = 0;
-
-                    string line;
-                    while ((line = sr.ReadLine()) != null)
-                    {
-                        var accountData = line.Split(new[] { ':' });
-
-                        if (accountData.Count() < 2)
-                        {
-                            continue;
-                        }
-
-                        var username = accountData[0];
-                        var password = accountData[1];
-
-                        var client = new Client(region, username, password);
-
-                        while (true)
-                        {
-                            if (client.Completed)
-                            {
-                                break;
-                            }
-
-                            Thread.Sleep(1000);
-                        }
-
-                        _accountList.Add(client.Data);
-                        client.Disconnect();
-
-                        Console.WriteLine(@"[{0:HH:mm}] <{1}> Completed!", DateTime.Now, client.Data.Username);
-
-                        lineCount++;
-
-                        if (b != null)
-                        {
-                            b.ReportProgress((lineCount * 100) / totalLines);
-                        }
-                    }
-
-                    if (ExportHTML.Checked)
-                    {
-                        Export.ExportAsHTML(outputFileTextBox.Text, _accountList, ExportErrors.Checked);
-                    }
-                    else
-                    {
-                        Export.ExportAsText(outputFileTextBox.Text, _accountList, ExportErrors.Checked);
-                    }
-
-                    sr.Close();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            };
-
-            bw.ProgressChanged += (o, args) => { toolStripProgressBar1.Value = args.ProgressPercentage; };
-
-            bw.RunWorkerCompleted += (o, args) =>
-            {
-                button1.Enabled = true;
-
-                if (
-                    MessageBox.Show(
-                        "Finished!\nWanna see the results?", @"LoL Account Checker", MessageBoxButtons.YesNo) ==
-                    DialogResult.Yes)
-                {
-                    var file = outputFileTextBox.Text;
-
-                    Process.Start(file);
-                }
-            };
-
-            bw.RunWorkerAsync();
+            thread.Start();
         }
 
         private void InputFileOnDragDrop(object sender, DragEventArgs e)
         {
+            if (!inputFileTextBox.Enabled)
+            {
+                return;
+            }
+
             var path = (string[]) e.Data.GetData(DataFormats.FileDrop, false);
             var b = new StringBuilder();
             foreach (var c in path)
@@ -217,6 +144,98 @@ namespace LoL_Account_Checker
             }
 
             outputFileTextBox.Text = newFile;
+        }
+
+        private void ChangeControlsStatus(bool value)
+        {
+            if (InvokeRequired)
+            {
+                var d = new SetControlsEnabled(ChangeControlsStatus);
+                Invoke(d, new object[] { value });
+                return;
+            }
+
+            // Input file
+            inputLabel.Enabled = value;
+            inputFileTextBox.Enabled = value;
+
+            // Ouput file
+            outputLabel.Enabled = value;
+            outputFileTextBox.Enabled = value;
+
+            // Regions
+            regionLabel.Enabled = value;
+            regionsComboBox.Enabled = value;
+
+            // Config group
+            ExportErrors.Enabled = value;
+            ExportHTML.Enabled = value;
+            numericUpDown1.Enabled = value;
+
+
+            // Checker Button
+            button1.Enabled = value;
+        }
+
+        private void Checker_OnNewAccount(AccountData account)
+        {
+            if (InvokeRequired)
+            {
+                var d = new NewAccountChecked(Checker_OnNewAccount);
+                Invoke(d, new object[] { account });
+                return;
+            }
+
+            toolStripProgressBar1.Value = Checker.Percentage;
+            toolStripNewAccount.Text = string.Format("{0}: {1}", account.Username, account.Result);
+        }
+
+        private void Checker_OnFinishedChecking(EventArgs args)
+        {
+            if (InvokeRequired)
+            {
+                var d = new FinishedChecking(Checker_OnFinishedChecking);
+                Invoke(d, new object[] { args });
+                return;
+            }
+
+            toolStripProgressBar1.Value = 100;
+            toolStripNewAccount.Text = @"Finished!";
+
+            // Export
+            if (ExportHTML.Checked)
+            {
+                Utils.ExportAsHtml(outputFileTextBox.Text, Checker.Accounts, ExportErrors.Checked);
+            }
+            else
+            {
+                Utils.ExportAsText(outputFileTextBox.Text, Checker.Accounts, ExportErrors.Checked);
+            }
+
+
+            if (MessageBox.Show("Finished!\nWanna see the results?", @"LoL Account Checker", MessageBoxButtons.YesNo) ==
+                DialogResult.Yes)
+            {
+                var file = outputFileTextBox.Text;
+
+                Process.Start(file);
+            }
+
+            // Enable controlls
+            ChangeControlsStatus(true);
+        }
+
+        private void donateLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var msgBox = MessageBox.Show(
+                "If you wanna pay me a beer you can do it via paypal.\n" +
+                "For other methods, send me a private message on http://nulled.io or http://joduska.me \n" +
+                "Wanna donate via paypal?", "Donate", MessageBoxButtons.YesNo);
+
+            if (msgBox == DialogResult.Yes)
+            {
+                Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CHEV6LWPMHUMW");
+            }
         }
     }
 }

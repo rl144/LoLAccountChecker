@@ -1,4 +1,6 @@
-﻿namespace LoL_Account_Checker
+﻿using System;
+
+namespace LoL_Account_Checker
 {
     public class AccountData
     {
@@ -15,5 +17,6 @@
         public string SoloQRank;
         public string SummonerName;
         public string Username;
+        public DateTime LastPlay;
     }
 }

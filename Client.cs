@@ -69,6 +69,13 @@ namespace LoL_Account_Checker
                 case ErrorType.Connect:
                     Data.ErrorMessage = "Unable to connect to PvP.Net";
                     break;
+                case ErrorType.Receive:
+                    if (error.ErrorCode == "LOGIN-0018")
+                    {
+                        Data.ErrorMessage = "This account requires a password change in order to login.";
+                    }
+                    break;
+
                 default:
                     Data.ErrorMessage = string.Format(
                         "Unregisted error - Type: {0} - Code: {1}", error.Type, error.ErrorCode);
@@ -83,7 +90,7 @@ namespace LoL_Account_Checker
             Report(Result.Error);
         }
 
-        private async void GetData()
+        public async void GetData()
         {
             var loginPacket = await Connection.GetLoginDataPacketForUser();
             if (loginPacket.AllSummonerData == null)
@@ -123,6 +130,15 @@ namespace LoL_Account_Checker
             else
             {
                 Data.SoloQRank = "UNRANKED";
+            }
+
+            // Last Play
+            var recentGames = await Connection.GetRecentGames(loginPacket.AllSummonerData.Summoner.AcctId);
+            var lastGame = recentGames.GameStatistics.FirstOrDefault();
+
+            if (lastGame != null)
+            {
+                Data.LastPlay = lastGame.CreateDate;
             }
 
             Console.WriteLine(@"[{0:HH:mm}] <{1}> Data received!", DateTime.Now, Data.Username);
