@@ -30,7 +30,7 @@ namespace LoL_Account_Checker
             Connection.OnLogin += OnLogin;
             Connection.OnError += OnError;
 
-            Connection.Connect(username, password, region, "5.2.15");
+            Connection.Connect(username, password, region, "5.3.15");
 
             Console.WriteLine(@"[{0:HH:mm}] <{1}> Connecting to PvP.net", DateTime.Now, Data.Username);
         }

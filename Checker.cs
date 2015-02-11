@@ -1,18 +1,27 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using PVPNetConnect;
+
+#endregion
 
 namespace LoL_Account_Checker
 {
     public delegate void NewAccountChecked(AccountData account);
 
     public delegate void FinishedChecking(EventArgs args);
-    
-    static class Checker
+
+    internal static class Checker
     {
         public static List<AccountData> Accounts;
+
+        public static int Percentage;
+
+        private static List<Thread> _threads;
+        private static List<LoginData> _logins;
 
         public static int AccountsRemaining
         {
@@ -20,11 +29,6 @@ namespace LoL_Account_Checker
         }
 
         public static bool IsChecking { get; private set; }
-
-        public static int Percentage;
-
-        private static List<Thread> _threads;
-        private static List<LoginData> _logins;
 
         public static event NewAccountChecked OnNewAccount;
         public static event FinishedChecking OnFinishedChecking;
@@ -48,7 +52,9 @@ namespace LoL_Account_Checker
                 var account = _logins.FirstOrDefault();
 
                 if (account == null)
+                {
                     continue;
+                }
 
                 _logins.Remove(account);
 
@@ -61,9 +67,13 @@ namespace LoL_Account_Checker
                         {
                             Thread.Sleep(1000);
                         }
-                        
+
                         Accounts.Add(client.Data);
-                        _threads.Remove(Thread.CurrentThread);
+
+                        if (_threads.Contains(Thread.CurrentThread))
+                        {
+                            _threads.Remove(Thread.CurrentThread);
+                        }
 
                         Percentage = (Accounts.Count * 100) / numLogins;
                         NewAccount(client.Data);
