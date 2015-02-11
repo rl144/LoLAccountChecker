@@ -73,7 +73,7 @@ namespace LoL_Account_Checker
             sb.Append("             <th>Last Play</th>\n");
             sb.Append("         </tr>\n");
             sb.Append("     </thead>\n")
-            sb.Append("     </tbody>\n")
+            sb.Append("     <tbody>\n")
 
             var i = 0;
             foreach (var account in accounts.OrderByDescending(a => a.Result == Client.Result.Success))
