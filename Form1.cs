@@ -227,10 +227,11 @@ namespace LoL_Account_Checker
 
         private void donateLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            var msgBox = MessageBox.Show(
-                "If you wanna pay me a beer you can do it via paypal.\n" +
-                "For other methods, send me a private message on http://nulled.io or http://joduska.me \n" +
-                "Wanna donate via paypal?", "Donate", MessageBoxButtons.YesNo);
+            var msgBox =
+                MessageBox.Show(
+                    "If you wanna pay me a beer you can do it via paypal.\n" +
+                    "For other methods, send me a private message on http://nulled.io or http://joduska.me \n" +
+                    "Wanna donate via paypal?", "Donate", MessageBoxButtons.YesNo);
 
             if (msgBox == DialogResult.Yes)
             {

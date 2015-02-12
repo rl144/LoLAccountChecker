@@ -1,12 +1,16 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
+#endregion
+
 namespace LoL_Account_Checker
 {
-    class Utils
+    internal class Utils
     {
         public static List<LoginData> GetLogins(string file)
         {
@@ -47,73 +51,96 @@ namespace LoL_Account_Checker
             sb.Append(" <header>\n");
             sb.Append("     <title>LoL Account Checker</title>\n");
             sb.Append("     <style>\n");
-            sb.Append("         table { width: 100%; border: 1px solid #000000; }");
-            sb.Append("         th, td { border: 1px solid #000000; }");
-            sb.Append("         .a { background-color: #EEEEEE; }");
-            sb.Append("         .b { background-color: #FFFFFF; }");
+            sb.Append("         table { width: 100%; border: 1px solid #000000; }\n");
+            sb.Append("         th, td { border: 1px solid #000000; }\n");
+            sb.Append("         .a { background-color: #EEEEEE; }\n");
+            sb.Append("         .b { background-color: #FFFFFF; }\n");
             sb.Append("     </style>\n");
-            sb.Append("     <script type="text/javascript">function sortTable(t,e,o){var l,n=t.tBodies[0],a=Array.prototype.slice.call(n.rows,0);for(o=-(+o||-1),a=a.sort(function(t,l){return o*t.cells[e].textContent.trim().localeCompare(l.cells[e].textContent.trim())}),l=0;l<a.length;++l)n.appendChild(a[l])}function makeSortable(t){var e,o=t.tHead;if(o&&(o=o.rows[0])&&(o=o.cells),o)for(e=o.length;--e>=0;)(function(e){var l=1;o[e].addEventListener("click",function(){sortTable(t,e,l=1-l)})})(e)}function makeAllSortable(t){t=t||document.body;for(var e=t.getElementsByTagName("table"),o=e.length;--o>=0;)makeSortable(e[o])}window.onload=function(){makeAllSortable()};</script>\n");
-            sb.Append(" </header>");
-            sb.Append(" <body>");
+            sb.Append("     <script type=\"text/javascript\">\n");
+            sb.Append(
+                "          function sortTable(t,e,o){var l,n=t.tBodies[0],a=Array.prototype.slice.call(n.rows,0);for(o=-(+o||-1),a=a.sort(function(t,l){return o*t.cells[e].textContent.trim().localeCompare(l.cells[e].textContent.trim())}),l=0;l<a.length;++l)n.appendChild(a[l])}function makeSortable(t){var e,o=t.tHead;if(o&&(o=o.rows[0])&&(o=o.cells),o)for(e=o.length;--e>=0;)(function(e){var l=1;o[e].addEventListener(\"click\",function(){sortTable(t,e,l=1-l)})})(e)}function makeAllSortable(t){t=t||document.body;for(var e=t.getElementsByTagName(\"table\"),o=e.length;--o>=0;)makeSortable(e[o])}window.onload=function(){makeAllSortable()};\n");
+            sb.Append("     </script>\n");
+            sb.Append(" </header>\n");
+            sb.Append(" <body>\n");
 
-            sb.Append("     <table>\n");
-            sb.Append("     <thead>\n")
-            sb.Append("         <tr>\n");
-            sb.Append("             <th>Username</th>\n");
-            sb.Append("             <th>Password</th>\n");
-            sb.Append("             <th>Summoner Name</th>\n");
-            sb.Append("             <th>Level</th>\n");
-            sb.Append("             <th>Email Status</th>\n");
-            sb.Append("             <th>RP</th>\n");
-            sb.Append("             <th>IP</th>\n");
-            sb.Append("             <th>Champions</th>\n");
-            sb.Append("             <th>Skins</th>\n");
-            sb.Append("             <th>Rune Pages</th>\n");
-            sb.Append("             <th>Rank</th>\n");
-            sb.Append("             <th>Last Play</th>\n");
-            sb.Append("         </tr>\n");
-            sb.Append("     </thead>\n")
-            sb.Append("     <tbody>\n")
 
-            var i = 0;
-            foreach (var account in accounts.OrderByDescending(a => a.Result == Client.Result.Success))
+            if (accounts.Any(a => a.Result == Client.Result.Success))
             {
-                if (account.Result == Client.Result.Error && !exportErrors)
+                sb.Append(" <h1>Valid Accounts:</h1>");
+
+                sb.Append("     <table>\n");
+                sb.Append("     <thead>\n");
+                sb.Append("         <tr>\n");
+                sb.Append("             <th>Username</th>\n");
+                sb.Append("             <th>Password</th>\n");
+                sb.Append("             <th>Summoner Name</th>\n");
+                sb.Append("             <th>Level</th>\n");
+                sb.Append("             <th>Email Status</th>\n");
+                sb.Append("             <th>RP</th>\n");
+                sb.Append("             <th>IP</th>\n");
+                sb.Append("             <th>Champions</th>\n");
+                sb.Append("             <th>Skins</th>\n");
+                sb.Append("             <th>Rune Pages</th>\n");
+                sb.Append("             <th>Rank</th>\n");
+                sb.Append("             <th>Last Play</th>\n");
+                sb.Append("         </tr>\n");
+                sb.Append("     </thead>\n");
+                sb.Append("     <tbody>\n");
+
+                var i = 0;
+                foreach (var account in accounts.Where(a => a.Result == Client.Result.Success))
                 {
-                    continue;
+                    var c = i % 2 == 0 ? "a" : "b";
+
+                    sb.Append("         <tr class=" + c + ">\n");
+                    sb.Append("             <td>" + account.Username + "</td>\n");
+                    sb.Append("             <td>" + account.Password + "</td>\n");
+                    sb.Append("             <td>" + account.SummonerName + "</td>\n");
+                    sb.Append("             <td>" + account.Level + "</td>\n");
+                    sb.Append("             <td>" + account.EmailStatus + "</td>\n");
+                    sb.Append("             <td>" + account.RpBalance + "</td>\n");
+                    sb.Append("             <td>" + account.Ipbalance + "</td>\n");
+                    sb.Append("             <td>" + account.Champions + "</td>\n");
+                    sb.Append("             <td>" + account.Skins + "</td>\n");
+                    sb.Append("             <td>" + account.RunePages + "</td>\n");
+                    sb.Append("             <td>" + account.SoloQRank + "</td>\n");
+                    sb.Append("             <td>" + account.LastPlay + "</td>\n");
+                    sb.Append("         </tr>\n");
+
+                    i++;
                 }
+                sb.Append("     </tbody>\n");
+                sb.Append("     </table>\n");
+            }
 
-                var c = i % 2 == 0 ? "a" : "b";
+            if (exportErrors && accounts.Any(a => a.Result == Client.Result.Error))
+            {
+                sb.Append(" <h1>Errors:</h1>\n");
+                sb.Append(" <table>\n");
+                sb.Append("     <thead>\n");
+                sb.Append("         <tr>\n");
+                sb.Append("             <th>Account</th>\n");
+                sb.Append("             <th>Password</th>\n");
+                sb.Append("             <th>Error</th>\n");
+                sb.Append("         </tr>\n");
+                sb.Append("     </thead>\n");
+                sb.Append("     <tbody>\n");
 
-                sb.Append("         <tr class=" + c + ">\n");
-                sb.Append("             <td>" + account.Username + "</td>\n");
-                sb.Append("             <td>" + account.Password + "</td>\n");
-
-                if (account.Result == Client.Result.Error)
+                foreach (var account in accounts.Where(a => a.Result == Client.Result.Error))
                 {
+                    sb.Append("         <tr>\n");
+                    sb.Append("             <td>" + account.Username + "</td>\n");
+                    sb.Append("             <td>" + account.Password + "</td>\n");
                     sb.Append("             <td>" + account.ErrorMessage + "</td>\n");
                     sb.Append("         </tr>\n");
-                    i++;
-                    continue;
                 }
 
-                sb.Append("             <td>" + account.SummonerName + "</td>\n");
-                sb.Append("             <td>" + account.Level + "</td>\n");
-                sb.Append("             <td>" + account.EmailStatus + "</td>\n");
-                sb.Append("             <td>" + account.RpBalance + "</td>\n");
-                sb.Append("             <td>" + account.Ipbalance + "</td>\n");
-                sb.Append("             <td>" + account.Champions + "</td>\n");
-                sb.Append("             <td>" + account.Skins + "</td>\n");
-                sb.Append("             <td>" + account.RunePages + "</td>\n");
-                sb.Append("             <td>" + account.SoloQRank + "</td>\n");
-                sb.Append("             <td>" + account.LastPlay + "</td>\n");
-                sb.Append("         </tr>\n");
-
-                i++;
+                sb.Append("     </tbody>\n");
+                sb.Append(" </table>\n");
             }
-            sb.Append("     </tbody>\n")
-            sb.Append("     </table>\n");
-            sb.Append(" </body>");
+
+            sb.Append(" </body>\n");
+            sb.Append("</html>");
 
             var sw = new StreamWriter(file);
             sw.Write(sb.ToString());
@@ -124,12 +151,11 @@ namespace LoL_Account_Checker
         {
             var sb = new StringBuilder();
 
-            var hr = "---------------------------" + Environment.NewLine;
-
-            sb.Append(hr);
+            var hr = "===============================" + Environment.NewLine;
 
             foreach (var account in accounts.OrderByDescending(a => a.Result == Client.Result.Success))
             {
+                sb.Append(hr);
                 sb.Append("Username: " + account.Username + Environment.NewLine);
                 sb.Append("Password: " + account.Password + Environment.NewLine);
 
@@ -156,6 +182,7 @@ namespace LoL_Account_Checker
                 sb.Append("Rank: " + account.SoloQRank + Environment.NewLine);
                 sb.Append("Last Play: " + account.LastPlay + Environment.NewLine);
                 sb.Append(hr);
+                sb.Append(Environment.NewLine);
             }
 
             var sw = new StreamWriter(file);

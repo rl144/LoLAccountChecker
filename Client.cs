@@ -80,7 +80,7 @@ namespace LoL_Account_Checker
                     Data.ErrorMessage = string.Format(
                         "Unregisted error - Type: {0} - Code: {1}", error.Type, error.ErrorCode);
 #if DEBUG
-                    ErrorMessage += string.Format(" - Message: {0}", error.Message)
+                    Data.ErrorMessage += string.Format(" - Message: {0}", error.Message);
 #endif
                     break;
             }

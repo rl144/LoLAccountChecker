@@ -23,11 +23,6 @@ namespace LoL_Account_Checker
         private static List<Thread> _threads;
         private static List<LoginData> _logins;
 
-        public static int AccountsRemaining
-        {
-            get { return (_logins != null && _threads != null) ? _logins.Count + _threads.Count : 0; }
-        }
-
         public static bool IsChecking { get; private set; }
 
         public static event NewAccountChecked OnNewAccount;
@@ -39,6 +34,7 @@ namespace LoL_Account_Checker
             _threads = new List<Thread>();
             _logins = logins;
             IsChecking = true;
+
             var numLogins = logins.Count;
 
             while (_logins.Count > 0)
@@ -70,13 +66,14 @@ namespace LoL_Account_Checker
 
                         Accounts.Add(client.Data);
 
+                        Percentage = (Accounts.Count * 100) / numLogins;
+                        NewAccount(client.Data);
+
                         if (_threads.Contains(Thread.CurrentThread))
                         {
                             _threads.Remove(Thread.CurrentThread);
                         }
-
-                        Percentage = (Accounts.Count * 100) / numLogins;
-                        NewAccount(client.Data);
+                        Thread.CurrentThread.Abort();
                     });
 
                 thread.Start();
@@ -84,10 +81,12 @@ namespace LoL_Account_Checker
                 _threads.Add(thread);
             }
 
-            while (_threads.Count > 0)
+            while (Accounts.Count < numLogins)
             {
                 Thread.Sleep(500);
             }
+
+            _threads.ForEach(t => t.Abort());
 
             IsChecking = false;
             Percentage = 100;
