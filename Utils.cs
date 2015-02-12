@@ -52,10 +52,12 @@ namespace LoL_Account_Checker
             sb.Append("         .a { background-color: #EEEEEE; }");
             sb.Append("         .b { background-color: #FFFFFF; }");
             sb.Append("     </style>\n");
+            sb.Append("     <script type="text/javascript">function sortTable(t,e,o){var l,n=t.tBodies[0],a=Array.prototype.slice.call(n.rows,0);for(o=-(+o||-1),a=a.sort(function(t,l){return o*t.cells[e].textContent.trim().localeCompare(l.cells[e].textContent.trim())}),l=0;l<a.length;++l)n.appendChild(a[l])}function makeSortable(t){var e,o=t.tHead;if(o&&(o=o.rows[0])&&(o=o.cells),o)for(e=o.length;--e>=0;)(function(e){var l=1;o[e].addEventListener("click",function(){sortTable(t,e,l=1-l)})})(e)}function makeAllSortable(t){t=t||document.body;for(var e=t.getElementsByTagName("table"),o=e.length;--o>=0;)makeSortable(e[o])}window.onload=function(){makeAllSortable()};</script>\n");
             sb.Append(" </header>");
             sb.Append(" <body>");
 
             sb.Append("     <table>\n");
+            sb.Append("     <thead>\n")
             sb.Append("         <tr>\n");
             sb.Append("             <th>Username</th>\n");
             sb.Append("             <th>Password</th>\n");
@@ -70,6 +72,8 @@ namespace LoL_Account_Checker
             sb.Append("             <th>Rank</th>\n");
             sb.Append("             <th>Last Play</th>\n");
             sb.Append("         </tr>\n");
+            sb.Append("     </thead>\n")
+            sb.Append("     <tbody>\n")
 
             var i = 0;
             foreach (var account in accounts.OrderByDescending(a => a.Result == Client.Result.Success))
@@ -107,6 +111,7 @@ namespace LoL_Account_Checker
 
                 i++;
             }
+            sb.Append("     </tbody>\n")
             sb.Append("     </table>\n");
             sb.Append(" </body>");
 
