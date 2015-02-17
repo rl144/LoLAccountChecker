@@ -2,7 +2,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using LoLAccountChecker.Data;
 using PVPNetConnect;
 
@@ -40,7 +39,7 @@ namespace LoLAccountChecker
             }
         }
 
-        public static void Start()
+        public static async void Start()
         {
             if (IsChecking)
             {
@@ -48,16 +47,16 @@ namespace LoLAccountChecker
             }
 
             IsChecking = true;
-            Parallel.ForEach(
-                AccountsToCheck.Where(a => AccountsChecked.All(c => c.Username != a.Username)), async account =>
-                {
-                    var client = new Client(SelectedRegion, account.Username, account.Password);
-                    await client.IsCompleted.Task;
-                    var data = client.Data;
-                    AccountsChecked.Add(data);
 
-                    ReportNewAccount(data);
-                });
+            foreach (var account in AccountsToCheck.Where(a => AccountsChecked.All(c => c.Username != a.Username)))
+            {
+                var client = new Client(SelectedRegion, account.Username, account.Password);
+                await client.IsCompleted.Task;
+                var data = client.Data;
+                AccountsChecked.Add(data);
+
+                ReportNewAccount(data);
+            }
 
             IsChecking = false;
         }
