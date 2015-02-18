@@ -17,6 +17,8 @@ namespace LoLAccountChecker.Views
 {
     public partial class MainWindow
     {
+        private ErrorsWindow _errorsWindow;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -58,9 +60,17 @@ namespace LoLAccountChecker.Views
                     _exportButton.IsEnabled = true;
                 }
             }
-            else if (!_errorsButton.IsEnabled)
+            else
             {
-                _errorsButton.IsEnabled = true;
+                if (!_errorsButton.IsEnabled)
+                {
+                    _errorsButton.IsEnabled = true;
+                }
+
+                if (_errorsWindow != null)
+                {
+                    _errorsWindow.AddAccount(account);
+                }
             }
 
             if (Checker.AccountsChecked.Count >= Checker.AccountsToCheck.Count)
@@ -122,8 +132,16 @@ namespace LoLAccountChecker.Views
 
         private void BtnErrorsClick(object sender, RoutedEventArgs e)
         {
-            var window = new ErrorsWindow();
-            window.Show();
+            if (_errorsWindow == null)
+            {
+                _errorsWindow = new ErrorsWindow();
+                _errorsWindow.Show();
+                _errorsWindow.Closed += (o, args) => { _errorsWindow = null; };
+            }
+            else if (_errorsWindow != null && !_errorsWindow.IsActive)
+            {
+                _errorsWindow.Activate();
+            }
         }
 
         private void BtnStartCheckingClick(object sender, RoutedEventArgs e)
@@ -138,6 +156,7 @@ namespace LoLAccountChecker.Views
             _statusLabel.Content = "Status: Checking...";
 
             var thread = new Thread(Checker.Start);
+            thread.IsBackground = true;
             thread.Start();
         }
 

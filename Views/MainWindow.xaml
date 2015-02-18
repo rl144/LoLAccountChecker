@@ -36,8 +36,6 @@
         <Label x:Name="_statusLabel" Content="Status: Stopped" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Width="121" Grid.Row="1"/>
         <Label x:Name="_checkedLabel" Content="Checked: 0/0" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Center" Grid.Row="1"/>
 
-        <!-- Threads -->
-
         <!-- Region -->
         <Label Content="Region:" HorizontalAlignment="Left" Margin="140,5,0,0" VerticalAlignment="Top" Grid.Row="1"/>
         <ComboBox x:Name="_regionsComboBox" HorizontalAlignment="Left" Height="18" Margin="140,30,0,0" Grid.Row="1" VerticalAlignment="Center" Width="119" SelectionChanged="CbRegionOnChangeSelection"/>

@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Linq;
+using LoLAccountChecker.Data;
 
 #endregion
 
@@ -16,6 +17,11 @@ namespace LoLAccountChecker.Views
             {
                 _errorsDataGrid.Items.Add(account);
             }
+        }
+
+        public void AddAccount(AccountData account)
+        {
+            _errorsDataGrid.Items.Add(account);
         }
     }
 }

@@ -81,7 +81,8 @@ namespace LoLAccountChecker
             Data.ErrorMessage += string.Format(" - Message: {0}", error.Message);
 #endif
             Data.Result = Result.Error;
-            IsCompleted.SetResult(true);
+
+            IsCompleted.TrySetResult(true);
         }
 
         public async void GetData()
@@ -90,8 +91,10 @@ namespace LoLAccountChecker
             if (loginPacket.AllSummonerData == null)
             {
                 Data.ErrorMessage = "Summoner not created.";
-                Data.Result = Result.Success;
-                IsCompleted.SetResult(true);
+                Data.Result = Result.Error;
+
+                IsCompleted.TrySetResult(true);
+                return;
             }
 
             var champions = await Connection.GetAvailableChampions();
@@ -172,7 +175,7 @@ namespace LoLAccountChecker
 
             Data.Result = Result.Success;
 
-            IsCompleted.SetResult(true);
+            IsCompleted.TrySetResult(true);
         }
     }
 }
