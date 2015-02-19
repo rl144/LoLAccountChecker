@@ -17,27 +17,20 @@ namespace LoLAccountChecker
         {
             var logins = new List<LoginData>();
 
-            try
+            var sr = new StreamReader(file);
+            string line;
+            while ((line = sr.ReadLine()) != null)
             {
-                var sr = new StreamReader(file);
-                string line;
-                while ((line = sr.ReadLine()) != null)
+                var accountData = line.Split(new[] { ':' });
+
+                if (accountData.Count() < 2)
                 {
-                    var accountData = line.Split(new[] { ':' });
-
-                    if (accountData.Count() < 2)
-                    {
-                        continue;
-                    }
-
-                    var loginData = new LoginData(accountData[0], accountData[1]);
-
-                    logins.Add(loginData);
+                    continue;
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
+
+                var loginData = new LoginData(accountData[0], accountData[1]);
+
+                logins.Add(loginData);
             }
 
             return logins;
@@ -197,6 +190,23 @@ namespace LoLAccountChecker
             var sw = new StreamWriter(file);
             sw.WriteLine(sb.ToString());
             sw.Close();
+        }
+
+        public static void ExportException(Exception e)
+        {
+            var dir = Path.Combine(Directory.GetCurrentDirectory(), "Logs");
+
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+            var file = string.Format("crash_{0:dd-MM-yyyy_HH-mm-ss}.txt", DateTime.Now);
+
+            using (var sw = new StreamWriter(Path.Combine(dir, file)))
+            {
+                sw.WriteLine(e.ToString());
+            }
         }
     }
 }

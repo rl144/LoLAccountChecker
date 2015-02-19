@@ -78,7 +78,7 @@ namespace LoLAccountChecker
             }
 
 #if DEBUG
-            Data.ErrorMessage += string.Format(" - Message: {0}", error.Message);
+                Data.ErrorMessage += string.Format(" - Message: {0}", error.Message);
 #endif
             Data.Result = Result.Error;
 
