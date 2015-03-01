@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using LoLAccountChecker.Data;
+using Newtonsoft.Json;
 
 #endregion
 
@@ -190,6 +191,19 @@ namespace LoLAccountChecker
             var sw = new StreamWriter(file);
             sw.WriteLine(sb.ToString());
             sw.Close();
+        }
+
+        public static void ExportAsJson(string file, List<AccountData> accounts, bool exportErrors)
+        {
+            using (var sw = new StreamWriter(file))
+            {
+                if (!exportErrors)
+                {
+                    accounts = accounts.Where(a => a.Result == Client.Result.Success).ToList();
+                }
+
+                sw.Write(JsonConvert.SerializeObject(accounts));
+            }
         }
 
         public static void ExportException(Exception e)

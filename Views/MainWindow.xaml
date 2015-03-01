@@ -44,7 +44,7 @@
         <Button x:Name="_loadButton" Content="Load file" HorizontalAlignment="Right" Height="26" Margin="0,5,120,0" Grid.Row="1" VerticalAlignment="Top" Width="100" Click="BtnLoadFileClick"/>
         <Button x:Name="_startButton" Content="Start" HorizontalAlignment="Right" Height="26" Margin="0,5,10,0" Grid.Row="1" VerticalAlignment="Top" Width="100" Click="BtnStartCheckingClick" IsEnabled="False"/>
 
-        <Button x:Name="_exportButton" Content="Export to File" HorizontalAlignment="Right" Height="26" Margin="0,0,120,5" Grid.Row="1" VerticalAlignment="Bottom" Width="100" Click="BtnExportToFileClick" IsEnabled="False"/>
+        <Button x:Name="_exportButton" Content="Export" HorizontalAlignment="Right" Height="26" Margin="0,0,120,5" Grid.Row="1" VerticalAlignment="Bottom" Width="100" Click="BtnExportToFileClick" IsEnabled="False"/>
         <Button x:Name="_errorsButton" Content="Errors" HorizontalAlignment="Right" Height="26" Margin="0,0,10,5" Grid.Row="1" VerticalAlignment="Bottom" Width="100" Click="BtnErrorsClick" IsEnabled="False"/>
     </Grid>
 </Controls:MetroWindow>

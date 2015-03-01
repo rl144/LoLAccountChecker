@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using LoLAccountChecker.Data;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using PVPNetConnect;
 
 #endregion
@@ -85,7 +86,7 @@ namespace LoLAccountChecker.Views
         {
             var ofd = new OpenFileDialog();
 
-            ofd.Filter = "Text Files (*.txt)|*.*";
+            ofd.Filter = "Text Files (*.txt)|*.*|JavaScript Object Notation (*.json)|*.*";
 
             var result = ofd.ShowDialog();
 
@@ -95,12 +96,34 @@ namespace LoLAccountChecker.Views
 
                 if (File.Exists(file))
                 {
-                    var logins = Utils.GetLogins(file);
-                    Checker.AddLogins(logins);
-
-                    if (logins.Any())
+                    if (file.EndsWith(".json"))
                     {
-                        _startButton.IsEnabled = true;
+                        List<AccountData> accounts;
+                        using (var sr = new StreamReader(file))
+                        {
+                            accounts = JsonConvert.DeserializeObject<List<AccountData>>(sr.ReadToEnd());
+                        }
+
+                        foreach (var account in accounts)
+                        {
+                            if (
+                                !Checker.AccountsChecked.Exists(
+                                    a => a.Username == account.Username && a.Result == Client.Result.Success))
+                            {
+                                Checker.AccountsChecked.Add(account);
+                                _accountsDataGrid.Items.Add(account);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var logins = Utils.GetLogins(file);
+                        Checker.AddLogins(logins);
+
+                        if (logins.Any())
+                        {
+                            _startButton.IsEnabled = true;
+                        }
                     }
 
                     _checkedLabel.Content = string.Format(
@@ -113,7 +136,7 @@ namespace LoLAccountChecker.Views
         {
             var sfd = new SaveFileDialog();
             sfd.FileName = "output";
-            sfd.Filter = "Text Files (*.txt)|*.*|Html Files (*.html)|*.*";
+            sfd.Filter = "Text Files (*.txt)|*.*|Html Files (*.html)|*.*|JavaScript Object Notation (*.json)|*.*";
 
             if (sfd.ShowDialog() == true)
             {
@@ -122,6 +145,10 @@ namespace LoLAccountChecker.Views
                 if (file.EndsWith(".html"))
                 {
                     Utils.ExportAsHtml(file, Checker.AccountsChecked, false);
+                }
+                else if (file.EndsWith(".json"))
+                {
+                    Utils.ExportAsJson(file, Checker.AccountsChecked, false);
                 }
                 else
                 {
