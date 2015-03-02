@@ -8,7 +8,7 @@ namespace LoLAccountChecker.Views
 {
     public partial class SkinsWindow
     {
-        public SkinsWindow(AccountData account)
+        public SkinsWindow(Account account)
         {
             InitializeComponent();
 

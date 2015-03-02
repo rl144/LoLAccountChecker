@@ -13,20 +13,14 @@ namespace LoLAccountChecker
 {
     public class Client
     {
-        public enum Result
-        {
-            Success,
-            Error
-        }
-
         public PVPNetConnection Connection;
-        public AccountData Data;
+        public Account Data;
 
         public TaskCompletionSource<bool> IsCompleted;
 
         public Client(Region region, string username, string password)
         {
-            Data = new AccountData { Username = username, Password = password };
+            Data = new Account { Username = username, Password = password };
             IsCompleted = new TaskCompletionSource<bool>();
             Completed = false;
 
@@ -78,9 +72,9 @@ namespace LoLAccountChecker
             }
 
 #if DEBUG
-                Data.ErrorMessage += string.Format(" - Message: {0}", error.Message);
+            Data.ErrorMessage += string.Format(" - Message: {0}", error.Message);
 #endif
-            Data.Result = Result.Error;
+            Data.State = Account.Result.Error;
 
             IsCompleted.TrySetResult(true);
         }
@@ -93,7 +87,7 @@ namespace LoLAccountChecker
                 if (loginPacket.AllSummonerData == null)
                 {
                     Data.ErrorMessage = "Summoner not created.";
-                    Data.Result = Result.Error;
+                    Data.State = Account.Result.Error;
 
                     IsCompleted.TrySetResult(true);
                     return;
@@ -181,13 +175,13 @@ namespace LoLAccountChecker
                     Data.LastPlay = lastGame.CreateDate;
                 }
 
-                Data.Result = Result.Success;
+                Data.State = Account.Result.Success;
             }
             catch (Exception e)
             {
                 Utils.ExportException(e);
                 Data.ErrorMessage = string.Format("Exception found: {0}", e.Message);
-                Data.Result = Result.Error;
+                Data.State = Account.Result.Error;
             }
 
             IsCompleted.TrySetResult(true);

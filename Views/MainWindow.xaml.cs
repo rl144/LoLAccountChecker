@@ -8,6 +8,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using LoLAccountChecker.Data;
+using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using PVPNetConnect;
@@ -18,29 +19,35 @@ namespace LoLAccountChecker.Views
 {
     public partial class MainWindow
     {
-        private ErrorsWindow _errorsWindow;
-
         public MainWindow()
         {
             InitializeComponent();
 
+            WindowManager.Main = this;
+
             // Init Checker
-            Checker.AccountsChecked = new List<AccountData>();
-            Checker.AccountsToCheck = new List<LoginData>();
             Checker.OnNewAccount += OnNewAccount;
 
             // Init Regions
             _regionsComboBox.ItemsSource = Enum.GetValues(typeof(Region)).Cast<Region>();
-            _regionsComboBox.SelectedIndex = 0;
+            _regionsComboBox.SelectedItem = Settings.Config.SelectedRegion;
 
             // Init Champion Data
             if (File.Exists("Champions.json"))
             {
                 LeagueData.UpdateData("Champions.json");
             }
+
+            Closed += ClosedWindow;
         }
 
-        private void OnNewAccount(AccountData account)
+        private void ClosedWindow(object sender, EventArgs e)
+        {
+            Settings.Save();
+            Application.Current.Shutdown();
+        }
+
+        private void OnNewAccount(Account account)
         {
             if (!Dispatcher.CheckAccess())
             {
@@ -48,11 +55,10 @@ namespace LoLAccountChecker.Views
                 return;
             }
 
-            _progressBar.Value = (Checker.AccountsChecked.Count * 100f) / Checker.AccountsToCheck.Count;
-            _checkedLabel.Content = string.Format(
-                "Checked: {0}/{1}", Checker.AccountsChecked.Count, Checker.AccountsToCheck.Count);
+            _progressBar.Value = (Checker.Accounts.Count(a => a.State != Account.Result.Unchecked) * 100f) /
+                                 Checker.Accounts.Count();
 
-            if (account.Result == Client.Result.Success)
+            if (account.State == Account.Result.Success)
             {
                 _accountsDataGrid.Items.Add(account);
 
@@ -61,125 +67,139 @@ namespace LoLAccountChecker.Views
                     _exportButton.IsEnabled = true;
                 }
             }
-            else
-            {
-                if (!_errorsButton.IsEnabled)
-                {
-                    _errorsButton.IsEnabled = true;
-                }
 
-                if (_errorsWindow != null)
-                {
-                    _errorsWindow.AddAccount(account);
-                }
-            }
-
-            if (Checker.AccountsChecked.Count >= Checker.AccountsToCheck.Count)
-            {
-                _startButton.IsEnabled = true;
-                _loadButton.IsEnabled = true;
-                _statusLabel.Content = string.Format("Status: Finished!");
-            }
+            UpdateControlls();
         }
 
-        private void BtnLoadFileClick(object sender, RoutedEventArgs e)
+        public void UpdateControlls()
+        {
+            var numCheckedAcccounts = Checker.Accounts.Count(a => a.State != Account.Result.Unchecked);
+
+            _checkedLabel.Content = string.Format("Checked: {0}/{1}", numCheckedAcccounts, Checker.Accounts.Count);
+
+            if (numCheckedAcccounts < Checker.Accounts.Count)
+            {
+                _startButton.IsEnabled = true;
+            }
+
+            if (Checker.IsChecking)
+            {
+                _statusLabel.Content = "Status: Checking...";
+            }
+            else if (numCheckedAcccounts > 0 && Checker.Accounts.All(a => a.State != Account.Result.Unchecked))
+            {
+                _statusLabel.Content = "Status: Finished!";
+            }
+
+            _startButton.Content = Checker.IsChecking ? "Stop" : "Start";
+            _startButton.IsEnabled = numCheckedAcccounts < Checker.Accounts.Count;
+            _exportButton.IsEnabled = numCheckedAcccounts > 0;
+        }
+
+        #region Import Button
+
+        private void BtnImportClick(object sender, RoutedEventArgs e)
         {
             var ofd = new OpenFileDialog();
 
-            ofd.Filter = "Text Files (*.txt)|*.*|JavaScript Object Notation (*.json)|*.*";
+            ofd.Filter = "JavaScript Object Notation (*.json)|*.json";
 
             var result = ofd.ShowDialog();
 
             if (result == true)
             {
                 var file = ofd.FileName;
-
-                if (File.Exists(file))
+                if (!File.Exists(ofd.FileName))
                 {
-                    if (file.EndsWith(".json"))
+                    return;
+                }
+
+                List<Account> accounts;
+                var num = 0;
+
+                using (var sr = new StreamReader(file))
+                {
+                    accounts = JsonConvert.DeserializeObject<List<Account>>(sr.ReadToEnd());
+                }
+
+                foreach (var account in accounts)
+                {
+                    if (!Checker.Accounts.Exists(a => a.Username == account.Username))
                     {
-                        List<AccountData> accounts;
-                        using (var sr = new StreamReader(file))
+                        Checker.Accounts.Add(account);
+
+                        if (account.State == Account.Result.Success)
                         {
-                            accounts = JsonConvert.DeserializeObject<List<AccountData>>(sr.ReadToEnd());
+                            _accountsDataGrid.Items.Add(account);
                         }
 
-                        foreach (var account in accounts)
-                        {
-                            if (
-                                !Checker.AccountsChecked.Exists(
-                                    a => a.Username == account.Username && a.Result == Client.Result.Success))
-                            {
-                                Checker.AccountsChecked.Add(account);
-                                _accountsDataGrid.Items.Add(account);
-                            }
-                        }
+                        num++;
                     }
-                    else
-                    {
-                        var logins = Utils.GetLogins(file);
-                        Checker.AddLogins(logins);
+                }
 
-                        if (logins.Any())
-                        {
-                            _startButton.IsEnabled = true;
-                        }
-                    }
+                UpdateControlls();
 
-                    _checkedLabel.Content = string.Format(
-                        "Checked: {0}/{1}", Checker.AccountsChecked.Count, Checker.AccountsToCheck.Count);
+                if (num > 0)
+                {
+                    this.ShowMessageAsync("Import", string.Format("Imported {0} accounts.", num));
+                }
+                else
+                {
+                    this.ShowMessageAsync("Import", "No new accounts found.");
                 }
             }
         }
+
+        #endregion
+
+        #region Export Button
 
         private void BtnExportToFileClick(object sender, RoutedEventArgs e)
         {
             var sfd = new SaveFileDialog();
             sfd.FileName = "output";
-            sfd.Filter = "Text Files (*.txt)|*.*|Html Files (*.html)|*.*|JavaScript Object Notation (*.json)|*.*";
+            sfd.Filter = "JavaScript Object Notation (*.json)|*.json";
 
             if (sfd.ShowDialog() == true)
             {
                 var file = sfd.FileName;
 
-                if (file.EndsWith(".html"))
-                {
-                    Utils.ExportAsHtml(file, Checker.AccountsChecked, false);
-                }
-                else if (file.EndsWith(".json"))
-                {
-                    Utils.ExportAsJson(file, Checker.AccountsChecked, false);
-                }
-                else
-                {
-                    Utils.ExportAsText(file, Checker.AccountsChecked, false);
-                }
+                Utils.ExportAsJson(file, Checker.Accounts, true);
+                this.ShowMessageAsync("Export", string.Format("Exported {0} accounts.", Checker.Accounts.Count));
             }
         }
 
-        private void BtnErrorsClick(object sender, RoutedEventArgs e)
+        #endregion
+
+        #region Accounts Button
+
+        private void BtnAccountsClick(object sender, RoutedEventArgs e)
         {
-            if (_errorsWindow == null)
+            if (WindowManager.Accounts == null)
             {
-                _errorsWindow = new ErrorsWindow();
-                _errorsWindow.Show();
-                _errorsWindow.Closed += (o, args) => { _errorsWindow = null; };
+                WindowManager.Accounts = new AccountsWindow();
+                WindowManager.Accounts.Show();
+                WindowManager.Accounts.Closed += (o, a) => { WindowManager.Accounts = null; };
             }
-            else if (_errorsWindow != null && !_errorsWindow.IsActive)
+            else if (WindowManager.Accounts != null && !WindowManager.Accounts.IsActive)
             {
-                _errorsWindow.Activate();
+                WindowManager.Accounts.Activate();
             }
         }
+
+        #endregion
+
+        #region Start Button
 
         private void BtnStartCheckingClick(object sender, RoutedEventArgs e)
         {
-            if (Checker.AccountsToCheck.Count <= Checker.AccountsChecked.Count)
+            if (Checker.Accounts.All(a => a.State != Account.Result.Unchecked))
             {
+                this.ShowMessageAsync("Error", "All accounts have been checked.");
                 return;
             }
 
-            _loadButton.IsEnabled = false;
-            _startButton.IsEnabled = false;
+            _startButton.Content = "Stop";
             _statusLabel.Content = "Status: Checking...";
 
             var thread = new Thread(Checker.Start);
@@ -187,9 +207,13 @@ namespace LoLAccountChecker.Views
             thread.Start();
         }
 
+        #endregion
+
+        #region Context Menu
+
         private void CmCopyComboClick(object sender, RoutedEventArgs e)
         {
-            var account = _accountsDataGrid.SelectedItem as AccountData;
+            var account = _accountsDataGrid.SelectedItem as Account;
 
             if (account == null)
             {
@@ -202,7 +226,7 @@ namespace LoLAccountChecker.Views
 
         private void CmViewChampionsClick(object sender, RoutedEventArgs e)
         {
-            var account = _accountsDataGrid.SelectedItem as AccountData;
+            var account = _accountsDataGrid.SelectedItem as Account;
 
             if (account == null)
             {
@@ -215,7 +239,7 @@ namespace LoLAccountChecker.Views
 
         private void CmViewSkinsClick(object sender, RoutedEventArgs e)
         {
-            var account = _accountsDataGrid.SelectedItem as AccountData;
+            var account = _accountsDataGrid.SelectedItem as Account;
 
             if (account == null)
             {
@@ -226,9 +250,15 @@ namespace LoLAccountChecker.Views
             window.Show();
         }
 
+        #endregion
+
+        #region Regions Combo Box
+
         private void CbRegionOnChangeSelection(object sender, SelectionChangedEventArgs e)
         {
-            Checker.SelectedRegion = (Region) _regionsComboBox.SelectedIndex;
+            Settings.Config.SelectedRegion = (Region) _regionsComboBox.SelectedIndex;
         }
+
+        #endregion
     }
 }

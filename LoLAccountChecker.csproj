@@ -72,20 +72,21 @@
     <Compile Include="Data\ChampionsFull.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Data\LeagueData.cs" />
-    <Compile Include="Data\LoginData.cs" />
     <Compile Include="Data\SkinData.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="Views\ErrorsWindow.xaml.cs">
-      <DependentUpon>ErrorsWindow.xaml</DependentUpon>
+    <Compile Include="Views\AccountsWindow.xaml.cs">
+      <DependentUpon>AccountsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SkinsWindow.xaml.cs">
       <DependentUpon>SkinsWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="Views\ChampionsWindow.xaml">
+    <Compile Include="WindowManager.cs" />
+    <Page Include="Views\AccountsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ErrorsWindow.xaml">
+    <Page Include="Views\ChampionsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -93,7 +94,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Data\AccountData.cs" />
+    <Compile Include="Data\Account.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>

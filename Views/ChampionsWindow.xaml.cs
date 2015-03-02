@@ -8,7 +8,7 @@ namespace LoLAccountChecker.Views
 {
     public partial class ChampionsWindow
     {
-        public ChampionsWindow(AccountData account)
+        public ChampionsWindow(Account account)
         {
             InitializeComponent();
 

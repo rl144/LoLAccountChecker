@@ -4,7 +4,7 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         Title="Champions" Height="390" Width="600" BorderBrush="#CC008A00" BorderThickness="1">
     <Grid>
-        <DataGrid x:Name="_championsDataGrid" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" AutoGenerateColumns="False" ItemsSource="{Binding ChampionData}" IsReadOnly="True">
+        <DataGrid x:Name="_championsDataGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AutoGenerateColumns="False" ItemsSource="{Binding ChampionData}" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}"  Width="*"/>
                 <DataGridTextColumn Header="Purchase Date" Binding="{Binding PurchaseDate}"/>

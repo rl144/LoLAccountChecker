@@ -3,41 +3,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using LoLAccountChecker.Data;
-using PVPNetConnect;
 
 #endregion
 
 namespace LoLAccountChecker
 {
-    internal delegate void NewAccount(AccountData accout);
+    internal delegate void NewAccount(Account accout);
 
     internal static class Checker
     {
         public static NewAccount OnNewAccount;
-        private static Region _selectedRegion;
 
         static Checker()
         {
+            Accounts = new List<Account>();
             IsChecking = false;
         }
 
-        public static List<LoginData> AccountsToCheck { get; set; }
-        public static List<AccountData> AccountsChecked { get; set; }
+        public static List<Account> Accounts { get; set; }
         public static bool IsChecking { get; private set; }
-
-        public static Region SelectedRegion
-        {
-            get { return _selectedRegion; }
-            set
-            {
-                if (IsChecking)
-                {
-                    return;
-                }
-
-                _selectedRegion = value;
-            }
-        }
 
         public static async void Start()
         {
@@ -48,41 +32,30 @@ namespace LoLAccountChecker
 
             IsChecking = true;
 
-            foreach (var account in AccountsToCheck.Where(a => AccountsChecked.All(c => c.Username != a.Username)))
+            var region = Settings.Config.SelectedRegion;
+
+            while (Accounts.Any(a => a.State == Account.Result.Unchecked) || IsChecking)
             {
-                var client = new Client(SelectedRegion, account.Username, account.Password);
+                var account = Accounts.FirstOrDefault(a => a.State == Account.Result.Unchecked);
+
+                if (account == null)
+                {
+                    continue;
+                }
+
+                var client = new Client(region, account.Username, account.Password);
                 await client.IsCompleted.Task;
                 var data = client.Data;
-                AccountsChecked.Add(data);
-
+                var i = Accounts.FindIndex(a => a.Username == account.Username);
+                Accounts[i] = data;
                 ReportNewAccount(data);
             }
 
             IsChecking = false;
         }
 
-        public static void AddLogin(LoginData login)
-        {
-            if (AccountsToCheck.Any(account => account.Username == login.Username))
-            {
-                return; // Account already exists
-            }
 
-            if (AccountsChecked.Any(account => account.Username == login.Username))
-            {
-                return; // Account already checked
-            }
-
-            AccountsToCheck.Add(login);
-        }
-
-        public static void AddLogins(List<LoginData> loginList)
-        {
-            loginList.ForEach(AddLogin);
-        }
-
-
-        private static void ReportNewAccount(AccountData data)
+        private static void ReportNewAccount(Account data)
         {
             if (OnNewAccount != null)
             {
