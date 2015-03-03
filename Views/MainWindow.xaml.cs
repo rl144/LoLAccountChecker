@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -17,6 +18,8 @@ using PVPNetConnect;
 
 namespace LoLAccountChecker.Views
 {
+    internal delegate void UpdateControls();
+
     public partial class MainWindow
     {
         public MainWindow()
@@ -36,6 +39,10 @@ namespace LoLAccountChecker.Views
             if (File.Exists("Champions.json"))
             {
                 LeagueData.UpdateData("Champions.json");
+            }
+            else
+            {
+                Loaded += (sender, args) => LeagueData.DownloadFile();
             }
 
             Closed += ClosedWindow;
@@ -68,11 +75,22 @@ namespace LoLAccountChecker.Views
                 }
             }
 
-            UpdateControlls();
+            UpdateControls();
+
+            if (Checker.Accounts.All(a => a.State != Account.Result.Unchecked))
+            {
+                this.ShowMessageAsync("Done", "All the accounts have been checked!");
+            }
         }
 
-        public void UpdateControlls()
+        public void UpdateControls()
         {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke(new UpdateControls(UpdateControls));
+                return;
+            }
+
             var numCheckedAcccounts = Checker.Accounts.Count(a => a.State != Account.Result.Unchecked);
 
             _checkedLabel.Content = string.Format("Checked: {0}/{1}", numCheckedAcccounts, Checker.Accounts.Count);
@@ -94,6 +112,11 @@ namespace LoLAccountChecker.Views
             _startButton.Content = Checker.IsChecking ? "Stop" : "Start";
             _startButton.IsEnabled = numCheckedAcccounts < Checker.Accounts.Count;
             _exportButton.IsEnabled = numCheckedAcccounts > 0;
+        }
+
+        private void BtnDonateClick(object sender, RoutedEventArgs e)
+        {
+            Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CHEV6LWPMHUMW");
         }
 
         #region Import Button
@@ -137,7 +160,7 @@ namespace LoLAccountChecker.Views
                     }
                 }
 
-                UpdateControlls();
+                UpdateControls();
 
                 if (num > 0)
                 {
@@ -193,6 +216,14 @@ namespace LoLAccountChecker.Views
 
         private void BtnStartCheckingClick(object sender, RoutedEventArgs e)
         {
+            if (Checker.IsChecking)
+            {
+                Checker.Stop();
+                _startButton.Content = "Start";
+                _statusLabel.Content = "Status: Stopped!";
+                return;
+            }
+
             if (Checker.Accounts.All(a => a.State != Account.Result.Unchecked))
             {
                 this.ShowMessageAsync("Error", "All accounts have been checked.");

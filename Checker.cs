@@ -34,8 +34,13 @@ namespace LoLAccountChecker
 
             var region = Settings.Config.SelectedRegion;
 
-            while (Accounts.Any(a => a.State == Account.Result.Unchecked) || IsChecking)
+            while (Accounts.Any(a => a.State == Account.Result.Unchecked))
             {
+                if (!IsChecking)
+                {
+                    break;
+                }
+
                 var account = Accounts.FirstOrDefault(a => a.State == Account.Result.Unchecked);
 
                 if (account == null)
@@ -49,6 +54,18 @@ namespace LoLAccountChecker
                 var i = Accounts.FindIndex(a => a.Username == account.Username);
                 Accounts[i] = data;
                 ReportNewAccount(data);
+            }
+
+            IsChecking = false;
+
+            WindowManager.Main.UpdateControls();
+        }
+
+        public static void Stop()
+        {
+            if (!IsChecking)
+            {
+                return;
             }
 
             IsChecking = false;

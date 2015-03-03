@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.IO;
+using System.Linq;
 using System.Windows;
 using LoLAccountChecker.Data;
 using MahApps.Metro.Controls.Dialogs;
@@ -57,7 +58,7 @@ namespace LoLAccountChecker.Views
 
             Checker.Accounts.Add(account);
 
-            WindowManager.Main.UpdateControlls();
+            WindowManager.Main.UpdateControls();
             RefreshAccounts();
         }
 
@@ -97,7 +98,7 @@ namespace LoLAccountChecker.Views
                 }
 
                 RefreshAccounts();
-                WindowManager.Main.UpdateControlls();
+                WindowManager.Main.UpdateControls();
             }
         }
 
@@ -110,6 +111,46 @@ namespace LoLAccountChecker.Views
         public void RefreshAccounts()
         {
             _accountsGrid.Items.Refresh();
+        }
+
+        private async void BtnExportClick(object sender, RoutedEventArgs e)
+        {
+            var accounts = Checker.Accounts.Where(a => a.State != Account.Result.Unchecked).ToList();
+
+            if (!accounts.Any())
+            {
+                return;
+            }
+
+            var sfd = new SaveFileDialog();
+            sfd.FileName = "output";
+            sfd.Filter = "Text file (*.txt)|*.txt";
+
+            if (sfd.ShowDialog() == false)
+            {
+                return;
+            }
+
+            var settings = new MetroDialogSettings
+            {
+                AffirmativeButtonText = "Yes",
+                NegativeButtonText = "No",
+                FirstAuxiliaryButtonText = "Cancel"
+            };
+
+            var dialog = await this.ShowMessageAsync("Export", "Export errors?", MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary, settings);
+
+            if (dialog == MessageDialogResult.FirstAuxiliary)
+            {
+                return;
+            }
+
+            var exportErrors = dialog == MessageDialogResult.Affirmative;
+
+
+            Utils.ExportLogins(sfd.FileName, accounts, exportErrors);
+
+            await this.ShowMessageAsync("Export", "All the accounts have been exported!");
         }
     }
 }

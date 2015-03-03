@@ -100,7 +100,7 @@ namespace LoLAccountChecker
 
                 foreach (var champion in champions)
                 {
-                    var cdata = LeagueData.Data.data.FirstOrDefault(c => Int32.Parse(c.key) == champion.ChampionId);
+                    var cdata = LeagueData.Champions.data.FirstOrDefault(c => Int32.Parse(c.key) == champion.ChampionId);
 
                     if (cdata == null)
                     {

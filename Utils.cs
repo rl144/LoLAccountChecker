@@ -41,6 +41,22 @@ namespace LoLAccountChecker
             return logins;
         }
 
+        public static void ExportLogins(string file, List<Account> accounts, bool exportErrors)
+        {
+            using (var sw = new StreamWriter(file))
+            {
+                if (!exportErrors)
+                {
+                    accounts = accounts.Where(a => a.State == Account.Result.Success).ToList();
+                }
+
+                foreach (var account in accounts)
+                {
+                    sw.WriteLine("{0}:{1}", account.Username, account.Password);
+                }
+            }
+        }
+
         public static void ExportAsJson(string file, List<Account> accounts, bool exportErrors)
         {
             using (var sw = new StreamWriter(file))

@@ -16,7 +16,8 @@
             </DataGrid.Columns>
         </DataGrid>
         <CheckBox x:Name="_showPasswords" Content="Show Passwords" Height="26" Margin="10,0,0,5" VerticalAlignment="Bottom" HorizontalAlignment="Left" Grid.Row="1" Click="ShowPasswordsClick"/>
-        <Button x:Name="_importBtn" Content="Import"  Width="100" Margin="0,0,10,5" VerticalAlignment="Bottom" HorizontalAlignment="Right" Grid.Row="1" Click="BtnImportClick"/>
-        <Button x:Name="_addBtn" Content="Add" Width="100" Margin="0,0,120,5"  VerticalAlignment="Bottom" HorizontalAlignment="Right" Grid.Row="1" Click="BtnAddAccountClick" />
+        <Button x:Name="_addBtn" Content="Add" Width="100" Margin="0,0,230,5"  VerticalAlignment="Bottom" HorizontalAlignment="Right" Grid.Row="1" Click="BtnAddAccountClick" />
+        <Button x:Name="_importBtn" Content="Import"  Width="100" Margin="0,0,120,5" VerticalAlignment="Bottom" HorizontalAlignment="Right" Grid.Row="1" Click="BtnImportClick"/>
+        <Button x:Name="_exportBtn" Content="Export" Width="100" Margin="0,0,10,5" VerticalAlignment="Bottom" HorizontalAlignment="Right" Grid.Row="1" Click="BtnExportClick"/>
     </Grid>
 </Controls:MetroWindow>
