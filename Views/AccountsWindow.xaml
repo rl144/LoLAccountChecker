@@ -14,6 +14,13 @@
                 <DataGridTextColumn Header="Password" Binding="{Binding PasswordDisplay}" Width="150"/>
                 <DataGridTextColumn Header="State" Binding="{Binding StateDisplay}" Width="*"/>
             </DataGrid.Columns>
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Copy combo" Click="CmCopyComboClick"/>
+                    <MenuItem Header="Make Unchecked" Click="CmMakeUncheckedClick"/>
+                    <MenuItem Header="Remove"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
         </DataGrid>
         <CheckBox x:Name="_showPasswords" Content="Show Passwords" Height="26" Margin="10,0,0,5" VerticalAlignment="Bottom" HorizontalAlignment="Left" Grid.Row="1" Click="ShowPasswordsClick"/>
         <Button x:Name="_addBtn" Content="Add" Width="100" Margin="0,0,230,5"  VerticalAlignment="Bottom" HorizontalAlignment="Right" Grid.Row="1" Click="BtnAddAccountClick" />

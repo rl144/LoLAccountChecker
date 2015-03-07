@@ -69,14 +69,19 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Checker.cs" />
-    <Compile Include="Data\ChampionsFull.cs" />
     <Compile Include="Client.cs" />
+    <Compile Include="Data\Champion.cs" />
     <Compile Include="Data\LeagueData.cs" />
+    <Compile Include="Data\Rune.cs" />
+    <Compile Include="Data\RuneData.cs" />
     <Compile Include="Data\SkinData.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Views\AccountsWindow.xaml.cs">
       <DependentUpon>AccountsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RunesWindow.xaml.cs">
+      <DependentUpon>RunesWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SkinsWindow.xaml.cs">
       <DependentUpon>SkinsWindow.xaml</DependentUpon>
@@ -111,6 +116,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\RunesWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SkinsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -137,6 +146,8 @@
     <None Include="Champions.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="League\Champions.json" />
+    <None Include="League\Runes.json" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

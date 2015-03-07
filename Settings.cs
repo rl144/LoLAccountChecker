@@ -1,6 +1,10 @@
-﻿using System.IO;
+﻿#region
+
+using System.IO;
 using Newtonsoft.Json;
 using PVPNetConnect;
+
+#endregion
 
 namespace LoLAccountChecker
 {
@@ -16,11 +20,7 @@ namespace LoLAccountChecker
 
             if (!File.Exists(_file))
             {
-                Config = new Settings
-                {
-                    ShowPasswords = true,
-                    SelectedRegion = Region.NA
-                };
+                Config = new Settings { ShowPasswords = true, SelectedRegion = Region.NA };
 
                 Save();
                 return;
@@ -28,6 +28,9 @@ namespace LoLAccountChecker
 
             Load();
         }
+
+        public bool ShowPasswords { get; set; }
+        public Region SelectedRegion { get; set; }
 
         public static void Save()
         {
@@ -44,8 +47,5 @@ namespace LoLAccountChecker
                 Config = JsonConvert.DeserializeObject<Settings>(sr.ReadToEnd());
             }
         }
-
-        public bool ShowPasswords { get; set; }
-        public Region SelectedRegion { get; set; }
     }
 }

@@ -30,6 +30,7 @@ namespace LoLAccountChecker.Data
         public DateTime LastPlay { get; set; }
         public List<ChampionData> ChampionList { get; set; }
         public List<SkinData> SkinList { get; set; }
+        public List<RuneData> Runes { get; set; }
         public string ErrorMessage { get; set; }
         public Result State { get; set; }
 
@@ -54,7 +55,7 @@ namespace LoLAccountChecker.Data
                 {
                     case Result.Success:
                         return "Successfully Checked";
-                    
+
                     case Result.Unchecked:
                         return "Unchecked";
 

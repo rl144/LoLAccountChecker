@@ -1,4 +1,8 @@
-﻿using LoLAccountChecker.Views;
+﻿#region
+
+using LoLAccountChecker.Views;
+
+#endregion
 
 namespace LoLAccountChecker
 {

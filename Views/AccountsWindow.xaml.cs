@@ -138,7 +138,11 @@ namespace LoLAccountChecker.Views
                 FirstAuxiliaryButtonText = "Cancel"
             };
 
-            var dialog = await this.ShowMessageAsync("Export", "Export errors?", MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary, settings);
+            var dialog =
+                await
+                    this.ShowMessageAsync(
+                        "Export", "Export errors?", MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
+                        settings);
 
             if (dialog == MessageDialogResult.FirstAuxiliary)
             {
@@ -151,6 +155,57 @@ namespace LoLAccountChecker.Views
             Utils.ExportLogins(sfd.FileName, accounts, exportErrors);
 
             await this.ShowMessageAsync("Export", "All the accounts have been exported!");
+        }
+
+        private void CmCopyComboClick(object sender, RoutedEventArgs e)
+        {
+            var account = _accountsGrid.SelectedItem as Account;
+
+            if (account == null)
+            {
+                return;
+            }
+
+            Clipboard.SetText(string.Format("{0}:{1}", account.Username, account.Password));
+
+            this.ShowMessageAsync("Copy combo", "Combo copied to clipboard!");
+        }
+
+        private async void CmMakeUncheckedClick(object sender, RoutedEventArgs e)
+        {
+            var account = _accountsGrid.SelectedItem as Account;
+
+            if (account == null)
+            {
+                return;
+            }
+
+            if (account.State == Account.Result.Unchecked)
+            {
+                await this.ShowMessageAsync("Make Unchecked", "This account has not been checked yet.");
+                return;
+            }
+
+            if (account.State == Account.Result.Success)
+            {
+                var confirm =
+                    await
+                        this.ShowMessageAsync(
+                            "Make Unchecked",
+                            "This account was successfully checked, are you sure that you wanna make it unchecked?",
+                            MessageDialogStyle.AffirmativeAndNegative);
+
+                if (confirm == MessageDialogResult.Negative)
+                {
+                    return;
+                }
+
+                WindowManager.Main.RemoveAccount(account);
+            }
+
+            account.State = Account.Result.Unchecked;
+            RefreshAccounts();
+            await this.ShowMessageAsync("Make Unchecked", "Account state has been changed to Unchecked.");
         }
     }
 }

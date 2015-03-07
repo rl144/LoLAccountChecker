@@ -1,7 +1,9 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using MahApps.Metro.Controls.Dialogs;
 using Newtonsoft.Json;
@@ -10,26 +12,60 @@ using Newtonsoft.Json;
 
 namespace LoLAccountChecker.Data
 {
-    internal class LeagueData
+    internal static class LeagueData
     {
-        public static ChampionFull Champions;
+        private static string _repoUrl;
+        private static List<string> _files;
 
-        public static void UpdateData(string file)
+        static LeagueData()
         {
-            var sr = new StreamReader(file);
-            var data = sr.ReadToEnd();
-            sr.Close();
-
-            Champions = JsonConvert.DeserializeObject<ChampionFull>(data);
+            _repoUrl = "https://raw.githubusercontent.com/madk/LoLAccountChecker/master/";
+            _files = new List<string> { "League/Champions.json", "League/Runes.json" };
         }
 
-        public static async void DownloadFile()
+        public static List<Champion> Champions { get; private set; }
+        public static List<Rune> Runes { get; private set; }
+
+        public static async void Load()
         {
-            var wc = new WebClient();
-            var dialog = await WindowManager.Main.ShowProgressAsync("Updating", "Updating Champions.json");
-            wc.DownloadProgressChanged += (o, p) => dialog.SetProgress(p.ProgressPercentage/100d);
-            wc.DownloadFileCompleted += (o, a) => dialog.CloseAsync();
-            wc.DownloadFileAsync(new Uri("https://raw.githubusercontent.com/madk/LoLAccountChecker/master/Champions.json"), "Champions.json");
+            var toDownload = _files.Where(f => !File.Exists(f));
+
+            if (toDownload.Any())
+            {
+                var fileCount = 0;
+
+                var wc = new WebClient();
+                var dialog = await WindowManager.Main.ShowProgressAsync("Updating", "Downloading required files...");
+                wc.DownloadProgressChanged += (o, p) => dialog.SetProgress(p.ProgressPercentage / 100d);
+                wc.DownloadFileCompleted += (o, a) =>
+                {
+                    if (fileCount >= toDownload.Count())
+                    {
+                        dialog.CloseAsync();
+                    }
+                };
+
+                if (!Directory.Exists("League"))
+                {
+                    Directory.CreateDirectory("League");
+                }
+
+                foreach (var file in toDownload)
+                {
+                    fileCount++;
+                    await wc.DownloadFileTaskAsync(new Uri(_repoUrl + file), file);
+                }
+            }
+
+            using (var sr = new StreamReader("League/Champions.json"))
+            {
+                Champions = JsonConvert.DeserializeObject<List<Champion>>(sr.ReadToEnd());
+            }
+
+            using (var sr = new StreamReader("League/Runes.json"))
+            {
+                Runes = JsonConvert.DeserializeObject<List<Rune>>(sr.ReadToEnd());
+            }
         }
     }
 }

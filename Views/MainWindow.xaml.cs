@@ -28,42 +28,34 @@ namespace LoLAccountChecker.Views
 
             WindowManager.Main = this;
 
-            // Init Checker
-            Checker.OnNewAccount += OnNewAccount;
-
             // Init Regions
             _regionsComboBox.ItemsSource = Enum.GetValues(typeof(Region)).Cast<Region>();
             _regionsComboBox.SelectedItem = Settings.Config.SelectedRegion;
 
             // Init Champion Data
-            if (File.Exists("Champions.json"))
-            {
-                LeagueData.UpdateData("Champions.json");
-            }
-            else
-            {
-                Loaded += (sender, args) => LeagueData.DownloadFile();
-            }
 
-            Closed += ClosedWindow;
+            Loaded += WindowLoaded;
+            Closed += WindowClosed;
         }
 
-        private void ClosedWindow(object sender, EventArgs e)
+        private void WindowLoaded(object sender, RoutedEventArgs e)
+        {
+            LeagueData.Load();
+        }
+
+        private void WindowClosed(object sender, EventArgs e)
         {
             Settings.Save();
             Application.Current.Shutdown();
         }
 
-        private void OnNewAccount(Account account)
+        public void OnNewAccount(Account account)
         {
             if (!Dispatcher.CheckAccess())
             {
                 Dispatcher.Invoke(new NewAccount(OnNewAccount), account);
                 return;
             }
-
-            _progressBar.Value = (Checker.Accounts.Count(a => a.State != Account.Result.Unchecked) * 100f) /
-                                 Checker.Accounts.Count();
 
             if (account.State == Account.Result.Success)
             {
@@ -83,6 +75,17 @@ namespace LoLAccountChecker.Views
             }
         }
 
+
+        public void RemoveAccount(Account data)
+        {
+            if (_accountsDataGrid.Items.Contains(data))
+            {
+                _accountsDataGrid.Items.Remove(data);
+            }
+
+            UpdateControls();
+        }
+
         public void UpdateControls()
         {
             if (!Dispatcher.CheckAccess())
@@ -93,13 +96,17 @@ namespace LoLAccountChecker.Views
 
             var numCheckedAcccounts = Checker.Accounts.Count(a => a.State != Account.Result.Unchecked);
 
-            _checkedLabel.Content = string.Format("Checked: {0}/{1}", numCheckedAcccounts, Checker.Accounts.Count);
+            // Progress Bar
+            _progressBar.Value = (numCheckedAcccounts * 100f) / Checker.Accounts.Count();
 
-            if (numCheckedAcccounts < Checker.Accounts.Count)
-            {
-                _startButton.IsEnabled = true;
-            }
+            // Export Button
+            _exportButton.IsEnabled = numCheckedAcccounts > 0;
 
+            // Start Button
+            _startButton.IsEnabled = numCheckedAcccounts < Checker.Accounts.Count;
+            _startButton.Content = Checker.IsChecking ? "Stop" : "Start";
+
+            // Status Label
             if (Checker.IsChecking)
             {
                 _statusLabel.Content = "Status: Checking...";
@@ -109,9 +116,8 @@ namespace LoLAccountChecker.Views
                 _statusLabel.Content = "Status: Finished!";
             }
 
-            _startButton.Content = Checker.IsChecking ? "Stop" : "Start";
-            _startButton.IsEnabled = numCheckedAcccounts < Checker.Accounts.Count;
-            _exportButton.IsEnabled = numCheckedAcccounts > 0;
+            // Checked Accounts Label
+            _checkedLabel.Content = string.Format("Checked: {0}/{1}", numCheckedAcccounts, Checker.Accounts.Count);
         }
 
         private void BtnDonateClick(object sender, RoutedEventArgs e)
@@ -278,6 +284,19 @@ namespace LoLAccountChecker.Views
             }
 
             var window = new SkinsWindow(account);
+            window.Show();
+        }
+
+        private void CmViewRunesClick(object sender, RoutedEventArgs e)
+        {
+            var account = _accountsDataGrid.SelectedItem as Account;
+
+            if (account == null)
+            {
+                return;
+            }
+
+            var window = new RunesWindow(account);
             window.Show();
         }
 

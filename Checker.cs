@@ -74,10 +74,7 @@ namespace LoLAccountChecker
 
         private static void ReportNewAccount(Account data)
         {
-            if (OnNewAccount != null)
-            {
-                OnNewAccount(data);
-            }
+            WindowManager.Main.OnNewAccount(data);
         }
     }
 }

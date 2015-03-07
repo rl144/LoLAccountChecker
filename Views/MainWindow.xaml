@@ -12,9 +12,7 @@
                             <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_money}" />
                         </Rectangle.OpacityMask>
                     </Rectangle>
-                    <TextBlock Margin="4 0 0 0"
-                   VerticalAlignment="Center"
-                   Text="donate" />
+                    <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="donate" />
                 </StackPanel>
             </Button>
         </Controls:WindowCommands>
@@ -46,6 +44,7 @@
                     <MenuItem Header="Copy combo" Click="CmCopyComboClick"/>
                     <MenuItem Header="View Champions" Click="CmViewChampionsClick"/>
                     <MenuItem Header="View Skins" Click="CmViewSkinsClick"/>
+                    <MenuItem Header="View Runes" Click="CmViewRunesClick"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>

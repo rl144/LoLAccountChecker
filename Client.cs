@@ -84,6 +84,7 @@ namespace LoLAccountChecker
             try
             {
                 var loginPacket = await Connection.GetLoginDataPacketForUser();
+
                 if (loginPacket.AllSummonerData == null)
                 {
                     Data.ErrorMessage = "Summoner not created.";
@@ -93,52 +94,17 @@ namespace LoLAccountChecker
                     return;
                 }
 
-                var champions = await Connection.GetAvailableChampions();
+                await GetChampions();
 
-                Data.ChampionList = new List<ChampionData>();
-                Data.SkinList = new List<SkinData>();
+                GetRunes(loginPacket.AllSummonerData.Summoner.SumId);
 
-                foreach (var champion in champions)
-                {
-                    var cdata = LeagueData.Champions.data.FirstOrDefault(c => Int32.Parse(c.key) == champion.ChampionId);
-
-                    if (cdata == null)
-                    {
-                        continue; // champion not implemented in json file ?
-                    }
-
-                    if (champion.Owned)
-                    {
-                        Data.ChampionList.Add(
-                            new ChampionData
-                            {
-                                Name = cdata.name,
-                                PurchaseDate =
-                                    new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(
-                                        Math.Round(champion.PurchaseDate / 1000d))
-                            });
-                    }
-
-                    foreach (var skin in champion.ChampionSkins.Where(skin => skin.Owned))
-                    {
-                        var sdata = cdata.skins.FirstOrDefault(s => Int32.Parse(s.id) == skin.SkinId);
-
-                        if (sdata == null)
-                        {
-                            continue; // skin not implemented in json file ?
-                        }
-
-                        Data.SkinList.Add(new SkinData { Name = sdata.name, StillObtainable = skin.StillObtainable });
-                    }
-                }
-
+                Data.Summoner = loginPacket.AllSummonerData.Summoner.Name;
                 Data.Level = (int) loginPacket.AllSummonerData.SummonerLevel.Level;
                 Data.RpBalance = (int) loginPacket.RpBalance;
                 Data.IpBalance = (int) loginPacket.IpBalance;
                 Data.Champions = Data.ChampionList.Count;
                 Data.Skins = Data.SkinList.Count;
                 Data.RunePages = loginPacket.AllSummonerData.SpellBook.BookPages.Count;
-                Data.Summoner = loginPacket.AllSummonerData.Summoner.Name;
 
                 if (loginPacket.EmailStatus != null)
                 {
@@ -185,6 +151,77 @@ namespace LoLAccountChecker
             }
 
             IsCompleted.TrySetResult(true);
+        }
+
+        private async Task GetChampions()
+        {
+            var champions = await Connection.GetAvailableChampions();
+
+            Data.ChampionList = new List<ChampionData>();
+            Data.SkinList = new List<SkinData>();
+
+            foreach (var champion in champions)
+            {
+                var championData = LeagueData.Champions.FirstOrDefault(c => c.Id == champion.ChampionId);
+
+                if (championData == null)
+                {
+                    continue;
+                }
+
+                if (champion.Owned)
+                {
+                    Data.ChampionList.Add(
+                        new ChampionData
+                        {
+                            Name = championData.Name,
+                            PurchaseDate =
+                                new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(
+                                    Math.Round(champion.PurchaseDate / 1000d))
+                        });
+                }
+
+                foreach (var skin in champion.ChampionSkins.Where(skin => skin.Owned))
+                {
+                    var skinData = championData.Skins.FirstOrDefault(s => s.Id == skin.SkinId);
+
+                    if (skinData == null)
+                    {
+                        continue;
+                    }
+
+                    Data.SkinList.Add(new SkinData { Name = skinData.Name, StillObtainable = skin.StillObtainable });
+                }
+            }
+        }
+
+        private async void GetRunes(double summmonerId)
+        {
+            Data.Runes = new List<RuneData>();
+
+            var runes = await Connection.GetSummonerRuneInventory(summmonerId);
+            if (runes != null)
+            {
+                foreach (var rune in runes.SummonerRunes)
+                {
+                    var runeData = LeagueData.Runes.FirstOrDefault(r => r.Id == rune.RuneId);
+
+                    if (runeData == null)
+                    {
+                        continue;
+                    }
+
+                    var rn = new RuneData
+                    {
+                        Name = runeData.Name,
+                        Description = runeData.Description,
+                        Quantity = rune.Quantity,
+                        Tier = runeData.Tier
+                    };
+
+                    Data.Runes.Add(rn);
+                }
+            }
         }
     }
 }
