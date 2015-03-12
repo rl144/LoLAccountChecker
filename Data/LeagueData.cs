@@ -56,7 +56,8 @@ namespace LoLAccountChecker.Data
                 {
                     fileCount++;
 
-                    var versionFile =  Path.GetFileNameWithoutExtension(file) + ".version";
+                    var versionFile = file.Replace(Path.GetFileName(file), string.Empty) +
+                                      Path.GetFileNameWithoutExtension(file) + ".version";
 
                     await wc.DownloadFileTaskAsync(new Uri(_repoUrl + file), file);
                     try

@@ -13,8 +13,6 @@ namespace LoLAccountChecker
 
     internal static class Checker
     {
-        public static NewAccount OnNewAccount;
-
         static Checker()
         {
             Accounts = new List<Account>();

@@ -35,8 +35,6 @@ namespace LoLAccountChecker.Views
             _regionsComboBox.ItemsSource = Enum.GetValues(typeof(Region)).Cast<Region>();
             _regionsComboBox.SelectedItem = Settings.Config.SelectedRegion;
 
-            // Init Champion Data
-
             Loaded += WindowLoaded;
             Closed += WindowClosed;
         }
