@@ -28,7 +28,7 @@ namespace LoLAccountChecker
             Connection.OnLogin += OnLogin;
             Connection.OnError += OnError;
 
-            Connection.Connect(username, password, region, "5.4.15_02_19_22_27");
+            Connection.Connect(username, password, region, "5.5.06_03_18_28_26");
         }
 
         public bool Completed { get; private set; }
