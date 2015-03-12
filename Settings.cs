@@ -21,7 +21,6 @@ namespace LoLAccountChecker
             if (!File.Exists(_file))
             {
                 Config = new Settings { ShowPasswords = true, SelectedRegion = Region.NA };
-
                 Save();
                 return;
             }
@@ -31,6 +30,7 @@ namespace LoLAccountChecker
 
         public bool ShowPasswords { get; set; }
         public Region SelectedRegion { get; set; }
+        public string ClientVersion { get; set; }
 
         public static void Save()
         {

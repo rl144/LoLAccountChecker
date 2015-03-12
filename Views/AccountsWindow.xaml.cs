@@ -13,10 +13,12 @@ namespace LoLAccountChecker.Views
 {
     public partial class AccountsWindow
     {
+        public static AccountsWindow Instance;
+
         public AccountsWindow()
         {
             InitializeComponent();
-            WindowManager.Accounts = this;
+            Instance = this;
 
             _accountsGrid.ItemsSource = Checker.Accounts;
             _showPasswords.IsChecked = Settings.Config.ShowPasswords;
@@ -58,7 +60,7 @@ namespace LoLAccountChecker.Views
 
             Checker.Accounts.Add(account);
 
-            WindowManager.Main.UpdateControls();
+            MainWindow.Instance.UpdateControls();
             RefreshAccounts();
         }
 
@@ -98,7 +100,7 @@ namespace LoLAccountChecker.Views
                 }
 
                 RefreshAccounts();
-                WindowManager.Main.UpdateControls();
+                MainWindow.Instance.UpdateControls();
             }
         }
 
@@ -200,7 +202,7 @@ namespace LoLAccountChecker.Views
                     return;
                 }
 
-                WindowManager.Main.RemoveAccount(account);
+                MainWindow.Instance.RemoveAccount(account);
             }
 
             account.State = Account.Result.Unchecked;

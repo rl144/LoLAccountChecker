@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using LoLAccountChecker.Data;
+using LoLAccountChecker.Views;
 
 #endregion
 
@@ -58,7 +59,7 @@ namespace LoLAccountChecker
 
             IsChecking = false;
 
-            WindowManager.Main.UpdateControls();
+            MainWindow.Instance.UpdateControls();
         }
 
         public static void Stop()
@@ -74,7 +75,7 @@ namespace LoLAccountChecker
 
         private static void ReportNewAccount(Account data)
         {
-            WindowManager.Main.OnNewAccount(data);
+            MainWindow.Instance.OnNewAccount(data);
         }
     }
 }

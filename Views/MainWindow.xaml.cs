@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,11 +23,13 @@ namespace LoLAccountChecker.Views
 
     public partial class MainWindow
     {
+        public static MainWindow Instance;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            WindowManager.Main = this;
+            Instance = this;
 
             // Init Regions
             _regionsComboBox.ItemsSource = Enum.GetValues(typeof(Region)).Cast<Region>();
@@ -38,9 +41,10 @@ namespace LoLAccountChecker.Views
             Closed += WindowClosed;
         }
 
-        private void WindowLoaded(object sender, RoutedEventArgs e)
+        private async void WindowLoaded(object sender, RoutedEventArgs e)
         {
-            LeagueData.Load();
+            await LeagueData.Load();
+            await Utils.UpdateClientVersion();
         }
 
         private void WindowClosed(object sender, EventArgs e)
@@ -204,15 +208,15 @@ namespace LoLAccountChecker.Views
 
         private void BtnAccountsClick(object sender, RoutedEventArgs e)
         {
-            if (WindowManager.Accounts == null)
+            if (AccountsWindow.Instance == null)
             {
-                WindowManager.Accounts = new AccountsWindow();
-                WindowManager.Accounts.Show();
-                WindowManager.Accounts.Closed += (o, a) => { WindowManager.Accounts = null; };
+                AccountsWindow.Instance = new AccountsWindow();
+                AccountsWindow.Instance.Show();
+                AccountsWindow.Instance.Closed += (o, a) => { AccountsWindow.Instance = null; };
             }
-            else if (WindowManager.Accounts != null && !WindowManager.Accounts.IsActive)
+            else if (AccountsWindow.Instance != null && !AccountsWindow.Instance.IsActive)
             {
-                WindowManager.Accounts.Activate();
+                AccountsWindow.Instance.Activate();
             }
         }
 

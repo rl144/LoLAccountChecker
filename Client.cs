@@ -177,7 +177,8 @@ namespace LoLAccountChecker
                             Name = championData.Name,
                             PurchaseDate =
                                 new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(
-                                    Math.Round(champion.PurchaseDate / 1000d))
+                                    Math.Round(champion.PurchaseDate / 1000d)),
+                            Champion = championData
                         });
                 }
 
@@ -190,7 +191,7 @@ namespace LoLAccountChecker
                         continue;
                     }
 
-                    Data.SkinList.Add(new SkinData { Name = skinData.Name, StillObtainable = skin.StillObtainable });
+                    Data.SkinList.Add(new SkinData { Name = skinData.Name, StillObtainable = skin.StillObtainable, Champion = championData, Skin = skinData});
                 }
             }
         }

@@ -10,5 +10,6 @@ namespace LoLAccountChecker.Data
     {
         public string Name { get; set; }
         public DateTime PurchaseDate { get; set; }
+        public Champion Champion;
     }
 }

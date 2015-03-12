@@ -4,7 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using LoLAccountChecker.Data;
+using LoLAccountChecker.Views;
+using MahApps.Metro.Controls.Dialogs;
 using Newtonsoft.Json;
 
 #endregion
@@ -84,6 +88,46 @@ namespace LoLAccountChecker
             using (var sw = new StreamWriter(Path.Combine(dir, file)))
             {
                 sw.WriteLine(e.ToString());
+            }
+        }
+
+        public static async Task UpdateClientVersion()
+        {
+            using (var wc = new WebClient())
+            {
+                try
+                {
+                    var clientVersion =
+                        wc.DownloadString(
+                            "https://raw.githubusercontent.com/madk/LoLAccountChecker/master/League/Client.version");
+
+                    if (Settings.Config.ClientVersion == null)
+                    {
+                        Settings.Config.ClientVersion = clientVersion;
+                        return;
+                    }
+
+                    if (clientVersion == Settings.Config.ClientVersion)
+                    {
+                        return;
+                    }
+
+                    var result =
+                        await
+                            MainWindow.Instance.ShowMessageAsync(
+                                "Client version outdated",
+                                "The client version of League of Legends looks different, do you wanna update it?",
+                                MessageDialogStyle.AffirmativeAndNegative);
+
+                    if (result == MessageDialogResult.Affirmative)
+                    {
+                        Settings.Config.ClientVersion = clientVersion;
+                    }
+                }
+                catch
+                {
+                    // ignore
+                }
             }
         }
     }
