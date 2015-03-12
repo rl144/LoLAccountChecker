@@ -51,7 +51,6 @@ namespace LoLAccountChecker.Views
 
                 selectedSkin.Skin = skin;
                 selectedSkin.Champion = champion;
-
             }
 
             Process.Start(

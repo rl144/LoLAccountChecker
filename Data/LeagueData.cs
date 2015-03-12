@@ -64,7 +64,8 @@ namespace LoLAccountChecker.Data
                     {
                         await wc.DownloadFileTaskAsync(new Uri(_repoUrl + versionFile), versionFile);
                     }
-                    catch {
+                    catch
+                    {
                         // no version file for this file
                     }
                 }
@@ -99,7 +100,8 @@ namespace LoLAccountChecker.Data
                 {
                     version = wc.DownloadString(_repoUrl + versionFile);
                 }
-                catch {
+                catch
+                {
                     return false; // no version file for this file
                 }
 

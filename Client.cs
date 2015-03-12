@@ -191,7 +191,14 @@ namespace LoLAccountChecker
                         continue;
                     }
 
-                    Data.SkinList.Add(new SkinData { Name = skinData.Name, StillObtainable = skin.StillObtainable, Champion = championData, Skin = skinData});
+                    Data.SkinList.Add(
+                        new SkinData
+                        {
+                            Name = skinData.Name,
+                            StillObtainable = skin.StillObtainable,
+                            Champion = championData,
+                            Skin = skinData
+                        });
                 }
             }
         }
