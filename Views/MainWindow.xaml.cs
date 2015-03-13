@@ -61,7 +61,7 @@ namespace LoLAccountChecker.Views
             var numCheckedAcccounts = Checker.Accounts.Count(a => a.State != Account.Result.Unchecked);
 
             // Progress Bar
-            _progressBar.Value = Checker.Accounts.Count > 0 ? ((numCheckedAcccounts * 100f) / Checker.Accounts.Count()) : 0;
+            _progressBar.Value = Checker.Accounts.Any() ? ((numCheckedAcccounts * 100f) / Checker.Accounts.Count()) : 0;
 
             // Export Button
             _exportButton.IsEnabled = numCheckedAcccounts > 0;
@@ -123,12 +123,6 @@ namespace LoLAccountChecker.Views
                     if (!Checker.Accounts.Exists(a => a.Username == account.Username))
                     {
                         Checker.Accounts.Add(account);
-
-                        /*if (account.State == Account.Result.Success)
-                        {
-                            _accountsDataGrid.Items.Add(account);
-                        }*/
-
                         num++;
                     }
                 }

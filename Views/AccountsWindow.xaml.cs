@@ -94,14 +94,8 @@ namespace LoLAccountChecker.Views
                     }
                 }
 
-                if (num > 0)
-                {
-                    this.ShowMessageAsync("Import", string.Format("Imported {0} accounts.", num));
-                }
-                else
-                {
-                    this.ShowMessageAsync("Import", "No new accounts found.");
-                }
+                this.ShowMessageAsync(
+                    "Import", num > 0 ? string.Format("Imported {0} accounts.", num) : "No new accounts found.");
 
                 RefreshAccounts();
                 MainWindow.Instance.UpdateControls();
