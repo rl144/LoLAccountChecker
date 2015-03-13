@@ -98,7 +98,7 @@ namespace LoLAccountChecker.Views
             var numCheckedAcccounts = Checker.Accounts.Count(a => a.State != Account.Result.Unchecked);
 
             // Progress Bar
-            _progressBar.Value = (numCheckedAcccounts * 100f) / Checker.Accounts.Count();
+            _progressBar.Value = Checker.Accounts.Count > 0 ? ((numCheckedAcccounts * 100f) / Checker.Accounts.Count()) : 0;
 
             // Export Button
             _exportButton.IsEnabled = numCheckedAcccounts > 0;
