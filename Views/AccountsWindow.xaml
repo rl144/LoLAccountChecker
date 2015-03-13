@@ -18,7 +18,7 @@
                 <ContextMenu>
                     <MenuItem Header="Copy combo" Click="CmCopyComboClick"/>
                     <MenuItem Header="Make Unchecked" Click="CmMakeUncheckedClick"/>
-                    <MenuItem Header="Remove"/>
+                    <MenuItem Header="Remove" Click="CmRemoveClick"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>

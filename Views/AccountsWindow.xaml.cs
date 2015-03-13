@@ -1,7 +1,9 @@
 ﻿#region
 
+using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using LoLAccountChecker.Data;
 using MahApps.Metro.Controls.Dialogs;
@@ -66,8 +68,10 @@ namespace LoLAccountChecker.Views
 
         private void BtnImportClick(object sender, RoutedEventArgs e)
         {
-            var ofd = new OpenFileDialog();
-            ofd.Filter = "Text files (*.txt)|*.txt";
+            var ofd = new OpenFileDialog
+            {
+                Filter = "Text files (*.txt)|*.txt"
+            };
 
             var result = ofd.ShowDialog();
 
@@ -124,9 +128,11 @@ namespace LoLAccountChecker.Views
                 return;
             }
 
-            var sfd = new SaveFileDialog();
-            sfd.FileName = "output";
-            sfd.Filter = "Text file (*.txt)|*.txt";
+            var sfd = new SaveFileDialog 
+            { 
+                FileName = "output",
+                Filter = "Text file (*.txt)|*.txt"
+            };
 
             if (sfd.ShowDialog() == false)
             {
@@ -161,6 +167,22 @@ namespace LoLAccountChecker.Views
 
         private void CmCopyComboClick(object sender, RoutedEventArgs e)
         {
+            if (_accountsGrid.SelectedItems.Count > 1)
+            {
+                var sb = new StringBuilder();
+                foreach (Account a in _accountsGrid.SelectedItems)
+                {
+                    sb.Append(string.Format("{0}:{1}{2}", a.Username, a.Password, Environment.NewLine));
+                }
+                Clipboard.SetText(sb.ToString());
+
+                this.ShowMessageAsync(
+                    "Copy combo",
+                    string.Format("Copied {0} combos to your clipboard.", _accountsGrid.SelectedItems.Count));
+
+                return;
+            }
+
             var account = _accountsGrid.SelectedItem as Account;
 
             if (account == null)
@@ -175,6 +197,68 @@ namespace LoLAccountChecker.Views
 
         private async void CmMakeUncheckedClick(object sender, RoutedEventArgs e)
         {
+            if (_accountsGrid.SelectedItems.Count > 1)
+            {
+                var c = 0;
+                var uncheckSuccess = false;
+                var toAll = false;
+                var settings = new MetroDialogSettings
+                {
+                    AffirmativeButtonText = "No",
+                    NegativeButtonText = "Yes",
+                    FirstAuxiliaryButtonText = "No to All",
+                    SecondAuxiliaryButtonText = "Yes to All"
+                };
+
+                foreach (Account acc in _accountsGrid.SelectedItems)
+                {
+                    if (acc.State == Account.Result.Success)
+                    {
+                        if (!toAll)
+                        {
+                            var confirm =
+                                await
+                                    this.ShowMessageAsync(
+                                        "Make Unchecked",
+                                        string.Format(
+                                            "This account ({0}) was successfully checked, are you sure that you wanna make it unchecked?",
+                                            acc.Username), MessageDialogStyle.AffirmativeAndNegativeAndDoubleAuxiliary,
+                                        settings);
+
+                            switch (confirm)
+                            {
+                                case MessageDialogResult.Affirmative:
+                                    continue;
+                                case MessageDialogResult.FirstAuxiliary:
+                                    toAll = true;
+                                    continue;
+                                case MessageDialogResult.SecondAuxiliary:
+                                    toAll = true;
+                                    uncheckSuccess = true;
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            if (!uncheckSuccess)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                    c++;
+                    acc.State = Account.Result.Unchecked;
+                }
+
+                RefreshAccounts();
+                MainWindow.Instance.UpdateControls();
+
+                await this.ShowMessageAsync(
+                    "Make Unchecked", string.Format("Account state has been changed to Unchecked on {0} accounts", c));
+
+                return;
+            }
+
             var account = _accountsGrid.SelectedItem as Account;
 
             if (account == null)
@@ -208,6 +292,75 @@ namespace LoLAccountChecker.Views
             account.State = Account.Result.Unchecked;
             RefreshAccounts();
             await this.ShowMessageAsync("Make Unchecked", "Account state has been changed to Unchecked.");
+        }
+
+        private async void CmRemoveClick(object sender, RoutedEventArgs e)
+        {
+            MessageDialogResult confirm;
+            if (_accountsGrid.SelectedItems.Count > 1)
+            {
+                confirm =
+                    await
+                        this.ShowMessageAsync(
+                            "Remove",
+                            string.Format(
+                                "Are you sure that you wanna remove {0} accounts?", _accountsGrid.SelectedItems.Count),
+                            MessageDialogStyle.AffirmativeAndNegative);
+            }
+            else
+            {
+                confirm =
+                    await this.ShowMessageAsync("Remove", "Are you sure?", MessageDialogStyle.AffirmativeAndNegative);
+            }
+
+            if (confirm == MessageDialogResult.Negative)
+            {
+                return;
+            }
+
+            if (_accountsGrid.SelectedItems.Count > 1)
+            {
+                var count = 0;
+                foreach (Account a in _accountsGrid.SelectedItems)
+                {
+                    if (Checker.Accounts.Contains(a))
+                    {
+                        if (a.State == Account.Result.Success)
+                        {
+                            MainWindow.Instance.RemoveAccount(a);
+                        }
+
+                        Checker.Accounts.Remove(a);
+                        count++;
+                    }
+                }
+
+                RefreshAccounts();
+                MainWindow.Instance.UpdateControls();
+                await this.ShowMessageAsync("Remove", string.Format("Removed {0} accounts!", count));
+                return;
+            }
+
+            var account = _accountsGrid.SelectedItem as Account;
+
+            if (account == null)
+            {
+                return;
+            }
+
+            if (Checker.Accounts.Contains(account))
+            {
+                if (account.State == Account.Result.Success)
+                {
+                    MainWindow.Instance.RemoveAccount(account);
+                }
+
+                Checker.Accounts.Remove(account);
+            }
+
+            RefreshAccounts();
+            MainWindow.Instance.UpdateControls();
+            await this.ShowMessageAsync("Remove", "Account removed!");
         }
     }
 }
