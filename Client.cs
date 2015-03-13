@@ -20,7 +20,11 @@ namespace LoLAccountChecker
 
         public Client(Region region, string username, string password)
         {
-            Data = new Account { Username = username, Password = password };
+            Data = new Account
+            {
+                Username = username,
+                Password = password
+            };
             IsCompleted = new TaskCompletionSource<bool>();
             Completed = false;
 

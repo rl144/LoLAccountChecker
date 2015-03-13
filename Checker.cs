@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LoLAccountChecker.Data;
 using LoLAccountChecker.Views;
+using MahApps.Metro.Controls.Dialogs;
 
 #endregion
 
@@ -39,7 +40,6 @@ namespace LoLAccountChecker
                 {
                     break;
                 }
-
                 var account = Accounts.FirstOrDefault(a => a.State == Account.Result.Unchecked);
 
                 if (account == null)
@@ -47,17 +47,26 @@ namespace LoLAccountChecker
                     continue;
                 }
 
+
                 var client = new Client(region, account.Username, account.Password);
+
                 await client.IsCompleted.Task;
-                var data = client.Data;
+
                 var i = Accounts.FindIndex(a => a.Username == account.Username);
-                Accounts[i] = data;
-                ReportNewAccount(data);
+                Accounts[i] = client.Data;
+
+                MainWindow.Instance.UpdateControls();
+
+                if (AccountsWindow.Instance != null)
+                {
+                    AccountsWindow.Instance.RefreshAccounts();
+                }
             }
 
             IsChecking = false;
 
             MainWindow.Instance.UpdateControls();
+            await MainWindow.Instance.ShowMessageAsync("Done", "All the accounts have been checked!");
         }
 
         public static void Stop()
@@ -68,12 +77,6 @@ namespace LoLAccountChecker
             }
 
             IsChecking = false;
-        }
-
-
-        private static void ReportNewAccount(Account data)
-        {
-            MainWindow.Instance.OnNewAccount(data);
         }
     }
 }

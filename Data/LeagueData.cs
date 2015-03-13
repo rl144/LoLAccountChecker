@@ -22,7 +22,11 @@ namespace LoLAccountChecker.Data
         static LeagueData()
         {
             _repoUrl = "https://raw.githubusercontent.com/madk/LoLAccountChecker/master/";
-            _files = new List<string> { "League/Champions.json", "League/Runes.json" };
+            _files = new List<string>
+            {
+                "League/Champions.json",
+                "League/Runes.json"
+            };
         }
 
         public static List<Champion> Champions { get; private set; }

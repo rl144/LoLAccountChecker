@@ -18,8 +18,6 @@ using PVPNetConnect;
 
 namespace LoLAccountChecker.Views
 {
-    internal delegate void UpdateControls();
-
     public partial class MainWindow
     {
         public static MainWindow Instance;
@@ -29,6 +27,8 @@ namespace LoLAccountChecker.Views
             InitializeComponent();
 
             Instance = this;
+
+            _accountsDataGrid.ItemsSource = Checker.Accounts.Where(a => a.State == Account.Result.Success);
 
             // Init Regions
             _regionsComboBox.ItemsSource = Enum.GetValues(typeof(Region)).Cast<Region>();
@@ -50,48 +50,11 @@ namespace LoLAccountChecker.Views
             Application.Current.Shutdown();
         }
 
-        public void OnNewAccount(Account account)
-        {
-            if (!Dispatcher.CheckAccess())
-            {
-                Dispatcher.Invoke(new NewAccount(OnNewAccount), account);
-                return;
-            }
-
-            if (account.State == Account.Result.Success)
-            {
-                _accountsDataGrid.Items.Add(account);
-
-                if (!_exportButton.IsEnabled)
-                {
-                    _exportButton.IsEnabled = true;
-                }
-            }
-
-            UpdateControls();
-
-            if (Checker.Accounts.All(a => a.State != Account.Result.Unchecked))
-            {
-                this.ShowMessageAsync("Done", "All the accounts have been checked!");
-            }
-        }
-
-
-        public void RemoveAccount(Account data)
-        {
-            if (_accountsDataGrid.Items.Contains(data))
-            {
-                _accountsDataGrid.Items.Remove(data);
-            }
-
-            UpdateControls();
-        }
-
         public void UpdateControls()
         {
             if (!Dispatcher.CheckAccess())
             {
-                Dispatcher.Invoke(new UpdateControls(UpdateControls));
+                Dispatcher.Invoke(UpdateControls);
                 return;
             }
 
@@ -119,6 +82,9 @@ namespace LoLAccountChecker.Views
 
             // Checked Accounts Label
             _checkedLabel.Content = string.Format("Checked: {0}/{1}", numCheckedAcccounts, Checker.Accounts.Count);
+
+            // Grid
+            _accountsDataGrid.ItemsSource = Checker.Accounts.Where(a => a.State == Account.Result.Success);
         }
 
         private void BtnDonateClick(object sender, RoutedEventArgs e)
@@ -158,10 +124,10 @@ namespace LoLAccountChecker.Views
                     {
                         Checker.Accounts.Add(account);
 
-                        if (account.State == Account.Result.Success)
+                        /*if (account.State == Account.Result.Success)
                         {
                             _accountsDataGrid.Items.Add(account);
-                        }
+                        }*/
 
                         num++;
                     }

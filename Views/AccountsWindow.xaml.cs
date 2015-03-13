@@ -116,6 +116,12 @@ namespace LoLAccountChecker.Views
 
         public void RefreshAccounts()
         {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke(RefreshAccounts);
+                return;
+            }
+
             _accountsGrid.Items.Refresh();
         }
 
@@ -128,8 +134,8 @@ namespace LoLAccountChecker.Views
                 return;
             }
 
-            var sfd = new SaveFileDialog 
-            { 
+            var sfd = new SaveFileDialog
+            {
                 FileName = "output",
                 Filter = "Text file (*.txt)|*.txt"
             };
@@ -253,8 +259,10 @@ namespace LoLAccountChecker.Views
                 RefreshAccounts();
                 MainWindow.Instance.UpdateControls();
 
-                await this.ShowMessageAsync(
-                    "Make Unchecked", string.Format("Account state has been changed to Unchecked on {0} accounts", c));
+                await
+                    this.ShowMessageAsync(
+                        "Make Unchecked",
+                        string.Format("Account state has been changed to Unchecked on {0} accounts", c));
 
                 return;
             }
@@ -285,12 +293,11 @@ namespace LoLAccountChecker.Views
                 {
                     return;
                 }
-
-                MainWindow.Instance.RemoveAccount(account);
             }
 
             account.State = Account.Result.Unchecked;
             RefreshAccounts();
+            MainWindow.Instance.UpdateControls();
             await this.ShowMessageAsync("Make Unchecked", "Account state has been changed to Unchecked.");
         }
 
@@ -325,11 +332,6 @@ namespace LoLAccountChecker.Views
                 {
                     if (Checker.Accounts.Contains(a))
                     {
-                        if (a.State == Account.Result.Success)
-                        {
-                            MainWindow.Instance.RemoveAccount(a);
-                        }
-
                         Checker.Accounts.Remove(a);
                         count++;
                     }
@@ -350,11 +352,6 @@ namespace LoLAccountChecker.Views
 
             if (Checker.Accounts.Contains(account))
             {
-                if (account.State == Account.Result.Success)
-                {
-                    MainWindow.Instance.RemoveAccount(account);
-                }
-
                 Checker.Accounts.Remove(account);
             }
 
