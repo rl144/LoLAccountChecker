@@ -66,7 +66,11 @@ namespace LoLAccountChecker
             IsChecking = false;
 
             MainWindow.Instance.UpdateControls();
-            await MainWindow.Instance.ShowMessageAsync("Done", "All the accounts have been checked!");
+
+            if (Accounts.Any(a => a.State == Account.Result.Unchecked))
+            {
+                MainWindow.Instance.Dispatcher.Invoke(() => MainWindow.Instance.ShowMessageAsync("Done", "All the accounts have been checked!"));
+            }
         }
 
         public static void Stop()
