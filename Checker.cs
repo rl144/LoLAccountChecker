@@ -34,32 +34,64 @@ namespace LoLAccountChecker
 
             var region = Settings.Config.SelectedRegion;
 
-            while (Accounts.Any(a => a.State == Account.Result.Unchecked))
+            string dialogMessage;
+            
+            if (!Accounts.Any(a => a.State == Account.Result.Outdated))
             {
-                if (!IsChecking)
+                dialogMessage = "All the accounts have been checked!";
+                while (Accounts.Any(a => a.State == Account.Result.Unchecked))
                 {
-                    break;
+                    if (!IsChecking)
+                    {
+                        break;
+                    }
+                    var account = Accounts.FirstOrDefault(a => a.State == Account.Result.Unchecked);
+
+                    if (account == null)
+                    {
+                        continue;
+                    }
+
+
+                    var client = new Client(region, account.Username, account.Password);
+
+                    await client.IsCompleted.Task;
+
+                    var i = Accounts.FindIndex(a => a.Username == account.Username);
+                    Accounts[i] = client.Data;
+
+                    MainWindow.Instance.UpdateControls();
+
+                    if (AccountsWindow.Instance != null)
+                    {
+                        AccountsWindow.Instance.RefreshAccounts();
+                    }
                 }
-                var account = Accounts.FirstOrDefault(a => a.State == Account.Result.Unchecked);
-
-                if (account == null)
+            }
+            else
+            {
+                dialogMessage = string.Format("{0} accounts have been refreshed!", Accounts.Count(a => a.State == Account.Result.Outdated).ToString()); 
+                while (Accounts.Any(a => a.State == Account.Result.Outdated))
                 {
-                    continue;
-                }
+                    if (!IsChecking)
+                    {
+                        break;
+                    }
+                    var account = Accounts.FirstOrDefault(a => a.State == Account.Result.Outdated);
 
+                    var client = new Client(region, account.Username, account.Password);
 
-                var client = new Client(region, account.Username, account.Password);
+                    await client.IsCompleted.Task;
 
-                await client.IsCompleted.Task;
+                    var i = Accounts.FindIndex(a => a.Username == account.Username);
+                    Accounts[i] = client.Data;
 
-                var i = Accounts.FindIndex(a => a.Username == account.Username);
-                Accounts[i] = client.Data;
+                    MainWindow.Instance.UpdateControls();
 
-                MainWindow.Instance.UpdateControls();
-
-                if (AccountsWindow.Instance != null)
-                {
-                    AccountsWindow.Instance.RefreshAccounts();
+                    if (AccountsWindow.Instance != null)
+                    {
+                        AccountsWindow.Instance.RefreshAccounts();
+                    }
                 }
             }
 
@@ -69,7 +101,7 @@ namespace LoLAccountChecker
 
             if (Accounts.All(a => a.State != Account.Result.Unchecked))
             {
-                await MainWindow.Instance.Dispatcher.Invoke(() => MainWindow.Instance.ShowMessageAsync("Done", "All the accounts have been checked!"));
+                await MainWindow.Instance.Dispatcher.Invoke(() => MainWindow.Instance.ShowMessageAsync("Done", dialogMessage));
             }
         }
 

@@ -58,7 +58,7 @@ namespace LoLAccountChecker.Views
                 return;
             }
 
-            var numCheckedAcccounts = Checker.Accounts.Count(a => a.State != Account.Result.Unchecked);
+            var numCheckedAcccounts = Checker.Accounts.Count(a => a.State != Account.Result.Unchecked && a.State != Account.Result.Outdated);
 
             // Progress Bar
             _progressBar.Value = Checker.Accounts.Any() ? ((numCheckedAcccounts * 100f) / Checker.Accounts.Count()) : 0;
@@ -92,6 +92,35 @@ namespace LoLAccountChecker.Views
             Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CHEV6LWPMHUMW");
         }
 
+        private async void BtnRefreshClick(object sender, RoutedEventArgs e)
+        {
+            if (Checker.IsChecking)
+            {
+                await this.ShowMessageAsync("Error", "Please wait for the checking process to be completed.");
+                return;
+            }
+
+            if (AccountsWindow.Instance == null)
+            {
+                AccountsWindow.Instance = new AccountsWindow();
+                AccountsWindow.Instance.Closed += (o, a) => { AccountsWindow.Instance = null; };
+            }
+
+            foreach (Account a in _accountsDataGrid.SelectedItems)
+            {
+                a.State = Account.Result.Outdated;
+            }
+
+            AccountsWindow.Instance.RefreshAccounts();
+            UpdateControls();
+
+            _startButton.Content = "Stop";
+            _statusLabel.Content = "Status: Refreshing...";
+
+            var thread = new Thread(Checker.Start);
+            thread.IsBackground = true;
+            thread.Start();
+        }
         #region Import Button
 
         private void BtnImportClick(object sender, RoutedEventArgs e)
