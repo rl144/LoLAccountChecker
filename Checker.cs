@@ -2,9 +2,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using LoLAccountChecker.Data;
 using LoLAccountChecker.Views;
 using MahApps.Metro.Controls.Dialogs;
+using PVPNetConnect;
 
 #endregion
 
@@ -52,13 +54,8 @@ namespace LoLAccountChecker
                         continue;
                     }
 
-
-                    var client = new Client(region, account.Username, account.Password);
-
-                    await client.IsCompleted.Task;
-
                     var i = Accounts.FindIndex(a => a.Username == account.Username);
-                    Accounts[i] = client.Data;
+                    Accounts[i] = await CheckAccount(account, region);
 
                     MainWindow.Instance.UpdateControls();
 
@@ -79,12 +76,8 @@ namespace LoLAccountChecker
                     }
                     var account = Accounts.FirstOrDefault(a => a.State == Account.Result.Outdated);
 
-                    var client = new Client(region, account.Username, account.Password);
-
-                    await client.IsCompleted.Task;
-
                     var i = Accounts.FindIndex(a => a.Username == account.Username);
-                    Accounts[i] = client.Data;
+                    Accounts[i] = await CheckAccount(account, region);
 
                     MainWindow.Instance.UpdateControls();
 
@@ -113,6 +106,15 @@ namespace LoLAccountChecker
             }
 
             IsChecking = false;
+        }
+
+        public static async Task<Account> CheckAccount(Account account, Region region)
+        {
+            var client = new Client(region, account.Username, account.Password);
+
+            await client.IsCompleted.Task;
+
+            return client.Data;
         }
     }
 }

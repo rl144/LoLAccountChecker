@@ -18,7 +18,7 @@
             </Button>
             <Button Click="BtnRefreshClick">
                 <StackPanel Orientation="Horizontal">
-                    <Rectangle Width="20" Height="20"
+                    <Rectangle Width="11" Height="15"
                                Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
                         <Rectangle.OpacityMask>
                             <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_refresh}" />
