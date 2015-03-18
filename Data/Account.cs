@@ -13,6 +13,7 @@ namespace LoLAccountChecker.Data
         {
             Unchecked,
             Success,
+            Outdated,
             Error
         }
 
@@ -58,6 +59,9 @@ namespace LoLAccountChecker.Data
 
                     case Result.Unchecked:
                         return "Unchecked";
+
+                    case Result.Outdated:
+                        return "Outdated";
 
                     case Result.Error:
                         return ErrorMessage;
