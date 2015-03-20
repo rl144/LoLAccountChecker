@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using LoLAccountChecker.Data;
@@ -58,7 +57,7 @@ namespace LoLAccountChecker.Views
                 return;
             }
 
-            var numCheckedAcccounts = Checker.Accounts.Count(a => a.State != Account.Result.Unchecked && a.State != Account.Result.Outdated);
+            var numCheckedAcccounts = Checker.Accounts.Count(a => a.State != Account.Result.Unchecked);
 
             // Progress Bar
             _progressBar.Value = Checker.Accounts.Any() ? ((numCheckedAcccounts * 100f) / Checker.Accounts.Count()) : 0;
@@ -87,9 +86,32 @@ namespace LoLAccountChecker.Views
             _accountsDataGrid.ItemsSource = Checker.Accounts.Where(a => a.State == Account.Result.Success);
         }
 
+        public void UpdateProgressBar(double value)
+        {
+            if (value > 100 || value < 0)
+            {
+                return;
+            }
+
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke(() => UpdateProgressBar(value));
+                return;
+            }
+
+            _progressBar.Value = value;
+        }
+
+        #region Right Window Commands
+
         private void BtnDonateClick(object sender, RoutedEventArgs e)
         {
             Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CHEV6LWPMHUMW");
+        }
+
+        private void BtnGithubClick(object sender, RoutedEventArgs e)
+        {
+            Process.Start("https://github.com/madk/LoLAccountChecker");
         }
 
         private async void BtnRefreshClick(object sender, RoutedEventArgs e)
@@ -100,27 +122,29 @@ namespace LoLAccountChecker.Views
                 return;
             }
 
-            if (AccountsWindow.Instance == null)
+            if (!Checker.Accounts.Any())
             {
-                AccountsWindow.Instance = new AccountsWindow();
-                AccountsWindow.Instance.Closed += (o, a) => { AccountsWindow.Instance = null; };
+                await this.ShowMessageAsync("Error", "You don't have any accounts.");
+                return;
             }
 
-            foreach (Account a in _accountsDataGrid.SelectedItems)
+            if (Checker.Accounts.Any(a => a.State == Account.Result.Error))
             {
-                a.State = Account.Result.Outdated;
+                var dialog =
+                    await
+                        this.ShowMessageAsync(
+                            "Refresh", "Do you want to refresh accounts with Errors?",
+                            MessageDialogStyle.AffirmativeAndNegative);
+
+                Checker.Refresh(dialog == MessageDialogResult.Affirmative);
+                return;
             }
 
-            AccountsWindow.Instance.RefreshAccounts();
-            UpdateControls();
-
-            _startButton.Content = "Stop";
-            _statusLabel.Content = "Status: Refreshing...";
-
-            var thread = new Thread(Checker.Start);
-            thread.IsBackground = true;
-            thread.Start();
+            Checker.Refresh();
         }
+
+        #endregion
+
         #region Import Button
 
         private void BtnImportClick(object sender, RoutedEventArgs e)
@@ -222,16 +246,14 @@ namespace LoLAccountChecker.Views
 
             if (Checker.Accounts.All(a => a.State != Account.Result.Unchecked))
             {
-                this.ShowMessageAsync("Error", "All accounts have been checked.");
+                this.ShowMessageAsync("Error", "All accounts have already been checked.");
                 return;
             }
 
             _startButton.Content = "Stop";
             _statusLabel.Content = "Status: Checking...";
 
-            var thread = new Thread(Checker.Start);
-            thread.IsBackground = true;
-            thread.Start();
+            Checker.Start();
         }
 
         #endregion

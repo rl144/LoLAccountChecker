@@ -12,19 +12,21 @@
                   AutoGenerateColumns="False" ItemsSource="{Binding LoginData}" IsReadOnly="True" Grid.RowSpan="1"
                   BorderBrush="LightGray" BorderThickness="0,1" GridLinesVisibility="All">
             <DataGrid.Columns>
+                <DataGridTextColumn Header="Region" Binding="{Binding Region}" Width="70" />
                 <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="150" />
                 <DataGridTextColumn Header="Password" Binding="{Binding PasswordDisplay}" Width="150" />
                 <DataGridTextColumn Header="State" Binding="{Binding StateDisplay}" Width="*" />
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Copy combo" Click="CmCopyComboClick" />
+                    <MenuItem Header="Edit" Click="CmEditClick" />
+                    <MenuItem Header="Copy Combo" Click="CmCopyComboClick" />
                     <MenuItem Header="Make Unchecked" Click="CmMakeUncheckedClick" />
                     <MenuItem Header="Remove" Click="CmRemoveClick" />
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>
-        
+
         <CheckBox x:Name="_showPasswords" Content="Show Passwords" Height="26" Margin="10,0,0,5"
                   VerticalAlignment="Bottom" HorizontalAlignment="Left" Grid.Row="1" Click="ShowPasswordsClick" />
         <Button x:Name="_addBtn" Content="Add" Width="100" Margin="0,0,230,5" VerticalAlignment="Bottom"

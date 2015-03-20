@@ -26,44 +26,15 @@ namespace LoLAccountChecker.Views
             _showPasswords.IsChecked = Settings.Config.ShowPasswords;
         }
 
-        private async void BtnAddAccountClick(object sender, RoutedEventArgs e)
+        private void BtnAddAccountClick(object sender, RoutedEventArgs e)
         {
-            var settings = new LoginDialogSettings
-            {
-                AffirmativeButtonText = "Add",
-                NegativeButtonVisibility = Visibility.Visible,
-                NegativeButtonText = "Cancel"
-            };
-
-            var input = await this.ShowLoginAsync("New account", "Insert your new Account", settings);
-
-            if (input == null)
+            if (AccountWindow.Instance != null)
             {
                 return;
             }
 
-            if (string.IsNullOrEmpty(input.Username) || string.IsNullOrEmpty(input.Password))
-            {
-                return;
-            }
-
-            if (Checker.Accounts.Exists(a => a.Username == input.Username))
-            {
-                await this.ShowMessageAsync("New account", "Error: Account already exists.");
-                return;
-            }
-
-            var account = new Account
-            {
-                Username = input.Username,
-                Password = input.Password,
-                State = Account.Result.Unchecked
-            };
-
-            Checker.Accounts.Add(account);
-
-            MainWindow.Instance.UpdateControls();
-            RefreshAccounts();
+            var window = new AccountWindow();
+            window.ShowDialog();
         }
 
         private void BtnImportClick(object sender, RoutedEventArgs e)
@@ -106,6 +77,11 @@ namespace LoLAccountChecker.Views
         {
             Settings.Config.ShowPasswords = _showPasswords.IsChecked == true;
             RefreshAccounts();
+
+            if (AccountWindow.Instance != null)
+            {
+                AccountWindow.Instance.UpdateWindow();
+            }
         }
 
         public void RefreshAccounts()
@@ -163,6 +139,25 @@ namespace LoLAccountChecker.Views
             Utils.ExportLogins(sfd.FileName, accounts, exportErrors);
 
             await this.ShowMessageAsync("Export", "All the accounts have been exported!");
+        }
+
+        private void CmEditClick(object sender, RoutedEventArgs e)
+        {
+            if (Checker.IsChecking)
+            {
+                this.ShowMessageAsync("Error", "You can't edit accounts while the checker is working.");
+                return;
+            }
+
+            var account = _accountsGrid.SelectedItem as Account;
+
+            if (AccountWindow.Instance != null || account == null)
+            {
+                return;
+            }
+
+            var w = new AccountWindow(account);
+            w.ShowDialog();
         }
 
         private void CmCopyComboClick(object sender, RoutedEventArgs e)

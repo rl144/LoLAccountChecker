@@ -10,6 +10,7 @@ using LoLAccountChecker.Data;
 using LoLAccountChecker.Views;
 using MahApps.Metro.Controls.Dialogs;
 using Newtonsoft.Json;
+using PVPNetConnect;
 
 #endregion
 
@@ -32,11 +33,18 @@ namespace LoLAccountChecker
                     continue;
                 }
 
+                Region region;
+                if (accountData[2] == null || !Enum.TryParse(accountData[2], true, out region))
+                {
+                    region = Settings.Config.SelectedRegion;
+                }
+
                 var loginData = new Account
                 {
                     Username = accountData[0],
                     Password = accountData[1],
-                    State = Account.Result.Unchecked
+                    State = Account.Result.Unchecked,
+                    Region = region
                 };
 
                 logins.Add(loginData);

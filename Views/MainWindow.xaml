@@ -13,7 +13,18 @@
                             <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_money}" />
                         </Rectangle.OpacityMask>
                     </Rectangle>
-                    <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="donate" />
+                    <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Donate" />
+                </StackPanel>
+            </Button>
+            <Button Click="BtnGithubClick">
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="20" Height="20"
+                               Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
+                        <Rectangle.OpacityMask>
+                            <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_github}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                    <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Github" />
                 </StackPanel>
             </Button>
             <Button Click="BtnRefreshClick">
@@ -24,7 +35,7 @@
                             <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_refresh}" />
                         </Rectangle.OpacityMask>
                     </Rectangle>
-                    <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="refresh" />
+                    <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Refresh" />
                 </StackPanel>
             </Button>
         </Controls:WindowCommands>

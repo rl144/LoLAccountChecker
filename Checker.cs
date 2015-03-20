@@ -2,11 +2,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using LoLAccountChecker.Data;
 using LoLAccountChecker.Views;
-using MahApps.Metro.Controls.Dialogs;
-using PVPNetConnect;
 
 #endregion
 
@@ -25,7 +24,7 @@ namespace LoLAccountChecker
         public static List<Account> Accounts { get; set; }
         public static bool IsChecking { get; private set; }
 
-        public static async void Start()
+        public static void Start()
         {
             if (IsChecking)
             {
@@ -34,68 +33,12 @@ namespace LoLAccountChecker
 
             IsChecking = true;
 
-            var region = Settings.Config.SelectedRegion;
-
-            string dialogMessage;
-            
-            if (!Accounts.Any(a => a.State == Account.Result.Outdated))
+            var thread = new Thread(Handler)
             {
-                dialogMessage = "All the accounts have been checked!";
-                while (Accounts.Any(a => a.State == Account.Result.Unchecked))
-                {
-                    if (!IsChecking)
-                    {
-                        break;
-                    }
-                    var account = Accounts.FirstOrDefault(a => a.State == Account.Result.Unchecked);
+                IsBackground = true
+            };
 
-                    if (account == null)
-                    {
-                        continue;
-                    }
-
-                    var i = Accounts.FindIndex(a => a.Username == account.Username);
-                    Accounts[i] = await CheckAccount(account, region);
-
-                    MainWindow.Instance.UpdateControls();
-
-                    if (AccountsWindow.Instance != null)
-                    {
-                        AccountsWindow.Instance.RefreshAccounts();
-                    }
-                }
-            }
-            else
-            {
-                dialogMessage = string.Format("{0} accounts have been refreshed!", Accounts.Count(a => a.State == Account.Result.Outdated).ToString()); 
-                while (Accounts.Any(a => a.State == Account.Result.Outdated))
-                {
-                    if (!IsChecking)
-                    {
-                        break;
-                    }
-                    var account = Accounts.FirstOrDefault(a => a.State == Account.Result.Outdated);
-
-                    var i = Accounts.FindIndex(a => a.Username == account.Username);
-                    Accounts[i] = await CheckAccount(account, region);
-
-                    MainWindow.Instance.UpdateControls();
-
-                    if (AccountsWindow.Instance != null)
-                    {
-                        AccountsWindow.Instance.RefreshAccounts();
-                    }
-                }
-            }
-
-            IsChecking = false;
-
-            MainWindow.Instance.UpdateControls();
-
-            if (Accounts.All(a => a.State != Account.Result.Unchecked))
-            {
-                await MainWindow.Instance.Dispatcher.Invoke(() => MainWindow.Instance.ShowMessageAsync("Done", dialogMessage));
-            }
+            thread.Start();
         }
 
         public static void Stop()
@@ -108,9 +51,53 @@ namespace LoLAccountChecker
             IsChecking = false;
         }
 
-        public static async Task<Account> CheckAccount(Account account, Region region)
+        public static void Refresh(bool e = false)
         {
-            var client = new Client(region, account.Username, account.Password);
+            if (IsChecking)
+            {
+                return;
+            }
+
+            IsChecking = true;
+
+            foreach (var account in Accounts.Where(a => a.State == Account.Result.Success || e))
+            {
+                account.State = Account.Result.Unchecked;
+            }
+
+            Start();
+        }
+
+        private static async void Handler()
+        {
+            while (Accounts.Any(a => a.State == Account.Result.Unchecked))
+            {
+                if (!IsChecking)
+                {
+                    break;
+                }
+                var account = Accounts.FirstOrDefault(a => a.State == Account.Result.Unchecked);
+
+                if (account == null)
+                {
+                    continue;
+                }
+
+                var i = Accounts.FindIndex(a => a.Username == account.Username);
+                Accounts[i] = await CheckAccount(account);
+
+                MainWindow.Instance.UpdateControls();
+
+                if (AccountsWindow.Instance != null)
+                {
+                    AccountsWindow.Instance.RefreshAccounts();
+                }
+            }
+        }
+
+        public static async Task<Account> CheckAccount(Account account)
+        {
+            var client = new Client(account.Region, account.Username, account.Password);
 
             await client.IsCompleted.Task;
 
