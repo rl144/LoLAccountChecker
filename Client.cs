@@ -186,9 +186,18 @@ namespace LoLAccountChecker
         {
             Data.Transfers = new List<TransferData>();
 
+            // Regex
+            var regexTransfers = new Regex("\\\'account_transfer(.*)\\\'\\)", RegexOptions.Multiline);
+            var regexTransferData = new Regex("rp_cost\\\":\\\"(.*?)\\\"(?:.*)name\\\":\\\"(.*?)\\\"");
+            var regexRefunds = new Regex("credit_counter\\\">(\\d[1-3]?)<");
+            var regexRegion = new Regex("\\.(.*?)\\.");
+
             var storeUrl = await Connection.GetStoreUrl();
-            var storeUrlMisc = "https://store.euw1.lol.riotgames.com/store/tabs/view/misc";
-            var storeUrlHist = "https://store.euw1.lol.riotgames.com/store/accounts/rental_history";
+
+            var region = regexRegion.Match(storeUrl).Groups[1];
+
+            var storeUrlMisc = string.Format("https://store.{0}.lol.riotgames.com/store/tabs/view/misc", region);
+            var storeUrlHist = string.Format("https://store.{0}.lol.riotgames.com/store/accounts/rental_history", region);
 
             var cookies = new CookieContainer();
 
@@ -196,11 +205,6 @@ namespace LoLAccountChecker
 
             var miscHtml = Utils.GetHtmlResponse(storeUrlMisc, cookies);
             var histHtml = Utils.GetHtmlResponse(storeUrlHist, cookies);
-
-            // Regex
-            var regexTransfers = new Regex("\\\'account_transfer(.*)\\\'\\)", RegexOptions.Multiline);
-            var regexTransferData = new Regex("rp_cost\\\":\\\"(.*?)\\\"(?:.*)name\\\":\\\"(.*?)\\\"");
-            var regexRefunds = new Regex("credit_counter\\\">(\\d[1-3]?)<");
 
             // Transfers
             foreach (Match match in regexTransfers.Matches(miscHtml))
