@@ -24,6 +24,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using LoLAccountChecker.Data;
 using PVPNetConnect;
@@ -44,10 +46,12 @@ namespace LoLAccountChecker
             Data = new Account
             {
                 Username = username,
-                Password = password
+                Password = password,
+                Region = region,
+                Refunds = 0
             };
+
             IsCompleted = new TaskCompletionSource<bool>();
-            Completed = false;
 
             Connection = new PVPNetConnection();
             Connection.OnLogin += OnLogin;
@@ -55,8 +59,6 @@ namespace LoLAccountChecker
 
             Connection.Connect(username, password, region, Settings.Config.ClientVersion);
         }
-
-        public bool Completed { get; private set; }
 
         public void Disconnect()
         {
@@ -99,6 +101,7 @@ namespace LoLAccountChecker
 #if DEBUG
             Data.ErrorMessage += string.Format(" - Message: {0}", error.Message);
 #endif
+
             Data.State = Account.Result.Error;
 
             IsCompleted.TrySetResult(true);
@@ -120,6 +123,7 @@ namespace LoLAccountChecker
                 }
 
                 await GetChampions();
+                await GetStoreData();
 
                 GetRunes(loginPacket.AllSummonerData.Summoner.SumId);
 
@@ -176,6 +180,47 @@ namespace LoLAccountChecker
             }
 
             IsCompleted.TrySetResult(true);
+        }
+
+        private async Task GetStoreData()
+        {
+            Data.Transfers = new List<TransferData>();
+
+            var storeUrl = await Connection.GetStoreUrl();
+            var storeUrlMisc = "https://store.euw1.lol.riotgames.com/store/tabs/view/misc";
+            var storeUrlHist = "https://store.euw1.lol.riotgames.com/store/accounts/rental_history";
+
+            var cookies = new CookieContainer();
+
+            Utils.GetHtmlResponse(storeUrl, cookies);
+
+            var miscHtml = Utils.GetHtmlResponse(storeUrlMisc, cookies);
+            var histHtml = Utils.GetHtmlResponse(storeUrlHist, cookies);
+
+            // Regex
+            var regexTransfers = new Regex("\\\'account_transfer(.*)\\\'\\)", RegexOptions.Multiline);
+            var regexTransferData = new Regex("rp_cost\\\":\\\"(.*?)\\\"(?:.*)name\\\":\\\"(.*?)\\\"");
+            var regexRefunds = new Regex("credit_counter\\\">(\\d[1-3]?)<");
+
+            // Transfers
+            foreach (Match match in regexTransfers.Matches(miscHtml))
+            {
+                var data = regexTransferData.Matches(match.Value);
+
+                var transfer = new TransferData
+                {
+                    Price = Int32.Parse(data[0].Groups[1].Value),
+                    Name = data[0].Groups[2].Value
+                };
+
+                Data.Transfers.Add(transfer);
+            }
+
+            // Refunds credits
+            if (regexRefunds.IsMatch(histHtml))
+            {
+                Data.Refunds = Int32.Parse(regexRefunds.Match(histHtml).Groups[1].Value);
+            }
         }
 
         private async Task GetChampions()

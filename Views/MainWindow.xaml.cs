@@ -333,6 +333,19 @@ namespace LoLAccountChecker.Views
             window.Show();
         }
 
+        private void CmViewTransfersClick(object sender, RoutedEventArgs e)
+        {
+            var account = _accountsDataGrid.SelectedItem as Account;
+
+            if (account == null)
+            {
+                return;
+            }
+
+            var window = new TransfersWindow(account);
+            window.Show();
+        }
+
         #endregion
 
         #region Regions Combo Box
@@ -343,5 +356,6 @@ namespace LoLAccountChecker.Views
         }
 
         #endregion
+
     }
 }

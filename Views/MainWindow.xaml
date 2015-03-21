@@ -2,7 +2,7 @@
                       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                       xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-                      Title="LoL Account Checker" Height="450" Width="920" BorderBrush="#CC008A00" BorderThickness="1">
+                      Title="LoL Account Checker" Height="450" Width="950" BorderBrush="#CC008A00" BorderThickness="1">
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
             <Button Click="BtnDonateClick">
@@ -59,12 +59,13 @@
                 <DataGridTextColumn Binding="{Binding EmailStatus}" Header="Email Status" />
                 <DataGridTextColumn Binding="{Binding RpBalance}" Header="RP" />
                 <DataGridTextColumn Binding="{Binding IpBalance}" Header="IP" />
-                <DataGridTextColumn Binding="{Binding Champions}" Header="Champions" />
+                <DataGridTextColumn Binding="{Binding Champions}" Header="Champions"/>
                 <DataGridTextColumn Binding="{Binding Skins}" Header="Skins" />
                 <DataGridTextColumn Binding="{Binding RunePages}" Header="Rune Pages" />
+                <DataGridTextColumn Binding="{Binding Refunds}" Header="Refunds"/>
                 <DataGridTextColumn Binding="{Binding SoloQRank}" Header="Rank" />
                 <DataGridTextColumn Binding="{Binding LastPlay, StringFormat=\{0:dd-MM-yyyy HH:mm\}}"
-                                    Header="Last Play" />
+                                    Header="Last Play" Width="100"/>
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu>
@@ -72,6 +73,7 @@
                     <MenuItem Header="Champions" Click="CmViewChampionsClick" />
                     <MenuItem Header="Skins" Click="CmViewSkinsClick" />
                     <MenuItem Header="Runes" Click="CmViewRunesClick" />
+                    <MenuItem Header="Transfers" Click="CmViewTransfersClick" />
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>

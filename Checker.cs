@@ -70,6 +70,13 @@ namespace LoLAccountChecker
             }
 
             IsChecking = false;
+
+            MainWindow.Instance.UpdateControls();
+
+            if (AccountsWindow.Instance != null)
+            {
+                AccountsWindow.Instance.RefreshAccounts();
+            }
         }
 
         public static void Refresh(bool e = false)
@@ -114,6 +121,8 @@ namespace LoLAccountChecker
                     AccountsWindow.Instance.RefreshAccounts();
                 }
             }
+
+            Stop();
         }
 
         public static async Task<Account> CheckAccount(Account account)

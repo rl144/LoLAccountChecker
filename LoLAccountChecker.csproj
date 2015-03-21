@@ -76,6 +76,7 @@
     <Compile Include="Data\Rune.cs" />
     <Compile Include="Data\RuneData.cs" />
     <Compile Include="Data\SkinData.cs" />
+    <Compile Include="Data\TransferData.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Views\AccountsWindow.xaml.cs">
@@ -89,6 +90,9 @@
     </Compile>
     <Compile Include="Views\SkinsWindow.xaml.cs">
       <DependentUpon>SkinsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TransfersWindow.xaml.cs">
+      <DependentUpon>TransfersWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Views\AccountsWindow.xaml">
       <SubType>Designer</SubType>
@@ -128,6 +132,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SkinsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TransfersWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

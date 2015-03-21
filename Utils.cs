@@ -159,5 +159,39 @@ namespace LoLAccountChecker
                 }
             }
         }
+
+        public static string GetHtmlResponse(string url, CookieContainer cookieContainer = null)
+        {
+            var wr = (HttpWebRequest) WebRequest.Create(url);
+
+            if (cookieContainer != null)
+            {
+                wr.CookieContainer = cookieContainer;
+            }
+
+            try
+            {
+                string html;
+
+                using (var resp = wr.GetResponse())
+                {
+                    using (var sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        html = sr.ReadToEnd();
+                    }
+                }
+
+                return html;
+            }
+            catch (WebException e)
+            {
+                using (var response = e.Response)
+                {
+                    var resp = (HttpWebResponse) response;
+                }
+
+                return string.Empty;
+            }
+        }
     }
 }
