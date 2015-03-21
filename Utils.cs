@@ -55,7 +55,7 @@ namespace LoLAccountChecker
                 }
 
                 Region region;
-                if (accountData[2] == null || !Enum.TryParse(accountData[2], true, out region))
+                if (accountData.Count() < 3 || !Enum.TryParse(accountData[2], true, out region))
                 {
                     region = Settings.Config.SelectedRegion;
                 }
