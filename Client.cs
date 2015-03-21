@@ -165,7 +165,7 @@ namespace LoLAccountChecker
 
             // Regex
             var regexTransfers = new Regex("\\\'account_transfer(.*)\\\'\\)", RegexOptions.Multiline);
-            var regexTransferData = new Regex("rp_cost\\\":\\\"(.*?)\\\"(?:.*)name\\\":\\\"(.*?)\\\"");
+            var regexTransferData = new Regex("rp_cost\\\":(.*?),(?:.*)name\\\":\\\"(.*?)\\\"");
             var regexRefunds = new Regex("credit_counter\\\">(\\d[1-3]?)<");
             var regexRegion = new Regex("\\.(.*?)\\.");
 
@@ -190,7 +190,7 @@ namespace LoLAccountChecker
 
                 var transfer = new TransferData
                 {
-                    Price = Int32.Parse(data[0].Groups[1].Value),
+                    Price = Int32.Parse(data[0].Groups[1].Value.Replace("\"", "")),
                     Name = data[0].Groups[2].Value
                 };
 
