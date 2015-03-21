@@ -77,30 +77,7 @@ namespace LoLAccountChecker
 
         private void OnError(object sender, Error error)
         {
-            switch (error.Type)
-            {
-                case ErrorType.AuthKey:
-                    Data.ErrorMessage = "Unable to authenticate";
-                    break;
-                case ErrorType.Connect:
-                    Data.ErrorMessage = "Unable to connect to PvP.Net";
-                    break;
-                case ErrorType.Receive:
-                    if (error.ErrorCode == "LOGIN-0018")
-                    {
-                        Data.ErrorMessage = "This account requires a password change in order to login.";
-                    }
-                    break;
-
-                default:
-                    Data.ErrorMessage = string.Format(
-                        "Unregisted error - Type: {0} - Code: {1}", error.Type, error.ErrorCode);
-                    break;
-            }
-
-#if DEBUG
-            Data.ErrorMessage += string.Format(" - Message: {0}", error.Message);
-#endif
+            Data.ErrorMessage = error.Message;
 
             Data.State = Account.Result.Error;
 
