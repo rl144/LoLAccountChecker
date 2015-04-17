@@ -19,13 +19,18 @@
 
 #endregion
 
-namespace LoLAccountChecker.Data
+#region
+
+using System;
+
+#endregion
+
+namespace LoLAccountChecker.Classes
 {
-    public class SkinData
+    public class ChampionData
     {
-        public Champion Champion { get; set; }
-        public Skin Skin { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
-        public bool StillObtainable { get; set; }
+        public DateTime PurchaseDate { get; set; }
     }
 }

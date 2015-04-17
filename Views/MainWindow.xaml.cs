@@ -22,17 +22,14 @@
 #region
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
-using System.Windows.Controls;
-using LoLAccountChecker.Data;
+using LoLAccountChecker.Classes;
 using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
-using Newtonsoft.Json;
-using PVPNetConnect;
 
 #endregion
 
@@ -48,11 +45,7 @@ namespace LoLAccountChecker.Views
 
             Instance = this;
 
-            _accountsDataGrid.ItemsSource = Checker.Accounts.Where(a => a.State == Account.Result.Success);
-
-            // Init Regions
-            _regionsComboBox.ItemsSource = Enum.GetValues(typeof(Region)).Cast<Region>();
-            _regionsComboBox.SelectedItem = Settings.Config.SelectedRegion;
+            AccountsDataGrid.ItemsSource = Checker.Accounts.Where(a => a.State == Account.Result.Success);
 
             Loaded += WindowLoaded;
             Closed += WindowClosed;
@@ -81,30 +74,30 @@ namespace LoLAccountChecker.Views
             var numCheckedAcccounts = Checker.Accounts.Count(a => a.State != Account.Result.Unchecked);
 
             // Progress Bar
-            _progressBar.Value = Checker.Accounts.Any() ? ((numCheckedAcccounts * 100f) / Checker.Accounts.Count()) : 0;
+            ProgressBar.Value = Checker.Accounts.Any() ? ((numCheckedAcccounts * 100f) / Checker.Accounts.Count()) : 0;
 
             // Export Button
-            _exportButton.IsEnabled = numCheckedAcccounts > 0;
+            ExportButton.IsEnabled = numCheckedAcccounts > 0;
 
             // Start Button
-            _startButton.IsEnabled = numCheckedAcccounts < Checker.Accounts.Count;
-            _startButton.Content = Checker.IsChecking ? "Stop" : "Start";
+            StartButton.IsEnabled = numCheckedAcccounts < Checker.Accounts.Count;
+            StartButton.Content = Checker.IsChecking ? "Stop" : "Start";
 
             // Status Label
             if (Checker.IsChecking)
             {
-                _statusLabel.Content = "Status: Checking...";
+                StatusLabel.Content = "Status: Checking...";
             }
             else if (numCheckedAcccounts > 0 && Checker.Accounts.All(a => a.State != Account.Result.Unchecked))
             {
-                _statusLabel.Content = "Status: Finished!";
+                StatusLabel.Content = "Status: Finished!";
             }
 
             // Checked Accounts Label
-            _checkedLabel.Content = string.Format("Checked: {0}/{1}", numCheckedAcccounts, Checker.Accounts.Count);
+            CheckedLabel.Content = string.Format("Checked: {0}/{1}", numCheckedAcccounts, Checker.Accounts.Count);
 
             // Grid
-            _accountsDataGrid.ItemsSource = Checker.Accounts.Where(a => a.State == Account.Result.Success);
+            AccountsDataGrid.ItemsSource = Checker.Accounts.Where(a => a.State == Account.Result.Success);
         }
 
         public void UpdateProgressBar(double value)
@@ -120,7 +113,7 @@ namespace LoLAccountChecker.Views
                 return;
             }
 
-            _progressBar.Value = value;
+            ProgressBar.Value = value;
         }
 
         #region Right Window Commands
@@ -168,7 +161,7 @@ namespace LoLAccountChecker.Views
 
         #region Import Button
 
-        private void BtnImportClick(object sender, RoutedEventArgs e)
+        private async void BtnImportClick(object sender, RoutedEventArgs e)
         {
             var ofd = new OpenFileDialog();
 
@@ -179,38 +172,56 @@ namespace LoLAccountChecker.Views
             if (result == true)
             {
                 var file = ofd.FileName;
-                if (!File.Exists(ofd.FileName))
+                if (!File.Exists(file))
                 {
                     return;
                 }
 
-                List<Account> accounts;
-                var num = 0;
+                var jsonformat = JsonFormat.Import(file);
 
-                using (var sr = new StreamReader(file))
+                if (jsonformat == null)
                 {
-                    accounts = JsonConvert.DeserializeObject<List<Account>>(sr.ReadToEnd());
+                    await
+                        this.ShowMessageAsync(
+                            "Error", "Unable to load JSON file, it might be corrupted or from an old version.");
+                    return;
                 }
 
-                foreach (var account in accounts)
+                var importedVer = Version.Parse(jsonformat.Version);
+                var currentVer = Assembly.GetExecutingAssembly().GetName().Version;
+
+                if (importedVer != currentVer)
+                {
+                    var msg =
+                        await
+                            this.ShowMessageAsync(
+                                "Warning",
+                                string.Format(
+                                    "The file you are importing is from a {0} version. " +
+                                    "Some functions might not might not work, do you still want to load it?",
+                                    importedVer < currentVer ? "old" : "new"), MessageDialogStyle.AffirmativeAndNegative);
+
+                    if (msg == MessageDialogResult.Negative)
+                    {
+                        return;
+                    }
+                }
+
+                var count = 0;
+                foreach (var account in jsonformat.Accounts)
                 {
                     if (!Checker.Accounts.Exists(a => a.Username == account.Username))
                     {
                         Checker.Accounts.Add(account);
-                        num++;
+                        count++;
                     }
                 }
 
                 UpdateControls();
 
-                if (num > 0)
-                {
-                    this.ShowMessageAsync("Import", string.Format("Imported {0} accounts.", num));
-                }
-                else
-                {
-                    this.ShowMessageAsync("Import", "No new accounts found.");
-                }
+                await
+                    this.ShowMessageAsync(
+                        "Import", count > 0 ? string.Format("Imported {0} accounts.", count) : "No new accounts found.");
             }
         }
 
@@ -228,7 +239,7 @@ namespace LoLAccountChecker.Views
             {
                 var file = sfd.FileName;
 
-                Utils.ExportAsJson(file, Checker.Accounts, true);
+                JsonFormat.Export(file, Checker.Accounts.Where(a => a.State == Account.Result.Success).ToList());
                 this.ShowMessageAsync("Export", string.Format("Exported {0} accounts.", Checker.Accounts.Count));
             }
         }
@@ -260,8 +271,8 @@ namespace LoLAccountChecker.Views
             if (Checker.IsChecking)
             {
                 Checker.Stop();
-                _startButton.Content = "Start";
-                _statusLabel.Content = "Status: Stopped!";
+                StartButton.Content = "Start";
+                StatusLabel.Content = "Status: Stopped!";
                 return;
             }
 
@@ -271,8 +282,8 @@ namespace LoLAccountChecker.Views
                 return;
             }
 
-            _startButton.Content = "Stop";
-            _statusLabel.Content = "Status: Checking...";
+            StartButton.Content = "Stop";
+            StatusLabel.Content = "Status: Checking...";
 
             Checker.Start();
         }
@@ -281,9 +292,35 @@ namespace LoLAccountChecker.Views
 
         #region Context Menu
 
-        private void CmCopyComboClick(object sender, RoutedEventArgs e)
+        private void CmCopyUsername(object sender, RoutedEventArgs routedEventArgs)
         {
-            var account = _accountsDataGrid.SelectedItem as Account;
+            var account = AccountsDataGrid.SelectedItem as Account;
+
+            if (account == null)
+            {
+                return;
+            }
+
+            Clipboard.SetText(account.Username);
+            this.ShowMessageAsync("Copy Username", "Username has been copied to your clipboard.");
+        }
+
+        private void CmCopyPassword(object sender, RoutedEventArgs routedEventArgs)
+        {
+            var account = AccountsDataGrid.SelectedItem as Account;
+
+            if (account == null)
+            {
+                return;
+            }
+
+            Clipboard.SetText(account.Password);
+            this.ShowMessageAsync("Copy Password", "Password has been copied to your clipboard.");
+        }
+
+        private void CmCopyCombo(object sender, RoutedEventArgs e)
+        {
+            var account = AccountsDataGrid.SelectedItem as Account;
 
             if (account == null)
             {
@@ -294,68 +331,53 @@ namespace LoLAccountChecker.Views
             Clipboard.SetText(combo);
         }
 
-        private void CmViewChampionsClick(object sender, RoutedEventArgs e)
+        private void CmViewAccount(object sender, RoutedEventArgs e)
         {
-            var account = _accountsDataGrid.SelectedItem as Account;
+            var account = AccountsDataGrid.SelectedItem as Account;
 
             if (account == null)
             {
                 return;
             }
 
-            var window = new ChampionsWindow(account);
+            var window = new AccountWindow(account);
             window.Show();
         }
 
-        private void CmViewSkinsClick(object sender, RoutedEventArgs e)
+        private void CmExportJson(object sender, RoutedEventArgs e)
         {
-            var account = _accountsDataGrid.SelectedItem as Account;
-
-            if (account == null)
+            if (AccountsDataGrid.SelectedItem == null)
             {
                 return;
             }
 
-            var window = new SkinsWindow(account);
-            window.Show();
+            var sfd = new SaveFileDialog();
+            sfd.FileName = "output";
+            sfd.Filter = "JavaScript Object Notation (*.json)|*.json";
+
+            var accounts = AccountsDataGrid.SelectedItems.Cast<Account>().ToList();
+
+            if (sfd.ShowDialog() == true)
+            {
+                var file = sfd.FileName;
+
+                JsonFormat.Export(file, accounts);
+                this.ShowMessageAsync("Export", string.Format("Exported {0} accounts.", accounts.Count));
+            }
         }
 
-        private void CmViewRunesClick(object sender, RoutedEventArgs e)
+        private void CmExportCustom(object sender, RoutedEventArgs e)
         {
-            var account = _accountsDataGrid.SelectedItem as Account;
-
-            if (account == null)
+            if (AccountsDataGrid.SelectedItem == null)
             {
                 return;
             }
 
-            var window = new RunesWindow(account);
-            window.Show();
-        }
-
-        private void CmViewTransfersClick(object sender, RoutedEventArgs e)
-        {
-            var account = _accountsDataGrid.SelectedItem as Account;
-
-            if (account == null)
-            {
-                return;
-            }
-
-            var window = new TransfersWindow(account);
-            window.Show();
+            var accounts = AccountsDataGrid.SelectedItems.Cast<Account>();
+            var window = new ExportWindow(accounts);
+            window.ShowDialog();
         }
 
         #endregion
-
-        #region Regions Combo Box
-
-        private void CbRegionOnChangeSelection(object sender, SelectionChangedEventArgs e)
-        {
-            Settings.Config.SelectedRegion = (Region) _regionsComboBox.SelectedIndex;
-        }
-
-        #endregion
-
     }
 }

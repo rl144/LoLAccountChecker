@@ -19,11 +19,19 @@
 
 #endregion
 
-namespace LoLAccountChecker.Data
+namespace LoLAccountChecker.Classes
 {
-    public class TransferData
+    public class Champion
     {
+        public int Id { get; set; }
         public string Name { get; set; }
-        public int Price { get; set; }
+        public Skin[] Skins { get; set; }
+    }
+
+    public class Skin
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int Number { get; set; }
     }
 }

@@ -33,7 +33,7 @@ using Newtonsoft.Json;
 
 #endregion
 
-namespace LoLAccountChecker.Data
+namespace LoLAccountChecker.Classes
 {
     internal static class LeagueData
     {
@@ -139,6 +139,16 @@ namespace LoLAccountChecker.Data
 
                 return currentVersion != null && Version.Parse(version) > Version.Parse(currentVersion);
             }
+        }
+
+        public static Champion GetChampion(int championId)
+        {
+            return Champions.FirstOrDefault(c => c.Id == championId);
+        }
+
+        public static Skin GetSkin(Champion champion, int id)
+        {
+            return champion.Skins.FirstOrDefault(s => s.Id == id);
         }
     }
 }

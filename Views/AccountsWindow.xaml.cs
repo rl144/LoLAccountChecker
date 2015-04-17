@@ -26,7 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using LoLAccountChecker.Data;
+using LoLAccountChecker.Classes;
 using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 
@@ -49,12 +49,12 @@ namespace LoLAccountChecker.Views
 
         private void BtnAddAccountClick(object sender, RoutedEventArgs e)
         {
-            if (AccountWindow.Instance != null)
+            if (AccountEdit.Instance != null)
             {
                 return;
             }
 
-            var window = new AccountWindow();
+            var window = new AccountEdit();
             window.ShowDialog();
         }
 
@@ -75,22 +75,14 @@ namespace LoLAccountChecker.Views
                 }
 
                 var accounts = Utils.GetLogins(ofd.FileName);
-                var num = 0;
 
-                foreach (var account in accounts)
+                if (!accounts.Any())
                 {
-                    if (!Checker.Accounts.Exists(a => a.Username == account.Username))
-                    {
-                        Checker.Accounts.Add(account);
-                        num++;
-                    }
+                    return;
                 }
 
-                this.ShowMessageAsync(
-                    "Import", num > 0 ? string.Format("Imported {0} accounts.", num) : "No new accounts found.");
-
-                RefreshAccounts();
-                MainWindow.Instance.UpdateControls();
+                var window = new ImportWindow(accounts);
+                window.ShowDialog();
             }
         }
 
@@ -99,9 +91,9 @@ namespace LoLAccountChecker.Views
             Settings.Config.ShowPasswords = _showPasswords.IsChecked == true;
             RefreshAccounts();
 
-            if (AccountWindow.Instance != null)
+            if (AccountEdit.Instance != null)
             {
-                AccountWindow.Instance.UpdateWindow();
+                AccountEdit.Instance.UpdateWindow();
             }
         }
 
@@ -143,18 +135,23 @@ namespace LoLAccountChecker.Views
                 FirstAuxiliaryButtonText = "Cancel"
             };
 
-            var dialog =
-                await
-                    this.ShowMessageAsync(
-                        "Export", "Export errors?", MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
-                        settings);
+            var exportErrors = false;
 
-            if (dialog == MessageDialogResult.FirstAuxiliary)
+            if (Checker.Accounts.Any(a => a.State == Account.Result.Error))
             {
-                return;
-            }
+                var dialog =
+                    await
+                        this.ShowMessageAsync(
+                            "Export", "Export errors?", MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
+                            settings);
 
-            var exportErrors = dialog == MessageDialogResult.Affirmative;
+                if (dialog == MessageDialogResult.FirstAuxiliary)
+                {
+                    return;
+                }
+
+                exportErrors = dialog == MessageDialogResult.Affirmative;
+            }
 
 
             Utils.ExportLogins(sfd.FileName, accounts, exportErrors);
@@ -172,12 +169,12 @@ namespace LoLAccountChecker.Views
 
             var account = _accountsGrid.SelectedItem as Account;
 
-            if (AccountWindow.Instance != null || account == null)
+            if (AccountEdit.Instance != null || account == null)
             {
                 return;
             }
 
-            var w = new AccountWindow(account);
+            var w = new AccountEdit(account);
             w.ShowDialog();
         }
 
@@ -340,9 +337,9 @@ namespace LoLAccountChecker.Views
                 var count = 0;
                 foreach (Account a in _accountsGrid.SelectedItems)
                 {
-                    if (Checker.Accounts.Contains(a))
+                    if (Checker.Accounts.Any(acc => acc.Username == a.Username))
                     {
-                        Checker.Accounts.Remove(a);
+                        Checker.Accounts.RemoveAll(acc => acc.Username == a.Username);
                         count++;
                     }
                 }

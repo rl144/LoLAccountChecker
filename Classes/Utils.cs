@@ -27,15 +27,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using LoLAccountChecker.Data;
 using LoLAccountChecker.Views;
 using MahApps.Metro.Controls.Dialogs;
-using Newtonsoft.Json;
 using PVPNetConnect;
 
 #endregion
 
-namespace LoLAccountChecker
+namespace LoLAccountChecker.Classes
 {
     internal class Utils
     {
@@ -87,19 +85,6 @@ namespace LoLAccountChecker
                 {
                     sw.WriteLine("{0}:{1}", account.Username, account.Password);
                 }
-            }
-        }
-
-        public static void ExportAsJson(string file, List<Account> accounts, bool exportErrors)
-        {
-            using (var sw = new StreamWriter(file))
-            {
-                if (!exportErrors)
-                {
-                    accounts = accounts.Where(a => a.State == Account.Result.Success).ToList();
-                }
-
-                sw.Write(JsonConvert.SerializeObject(accounts));
             }
         }
 

@@ -19,26 +19,23 @@
 
 #endregion
 
-#region
-
-using LoLAccountChecker.Data;
-
-#endregion
-
-namespace LoLAccountChecker.Views
+namespace LoLAccountChecker.Classes
 {
-    public partial class RunesWindow
+    public class Rune
     {
-        public RunesWindow(Account account)
+        public enum Types
         {
-            InitializeComponent();
-
-            Title = string.Format("{0} - Runes", account.Username);
-
-            if (account.Runes != null)
-            {
-                _runesDataGrid.ItemsSource = account.Runes;
-            }
+            Unknown,
+            Mark,
+            Seal,
+            Glyph,
+            Quintessence
         }
+
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public int Tier { get; set; }
+        public Types Type { get; set; }
     }
 }

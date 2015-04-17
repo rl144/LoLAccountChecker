@@ -70,31 +70,27 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Checker.cs" />
+    <Compile Include="Classes\JsonFormat.cs" />
     <Compile Include="Client.cs" />
-    <Compile Include="Data\Champion.cs" />
-    <Compile Include="Data\LeagueData.cs" />
-    <Compile Include="Data\Rune.cs" />
-    <Compile Include="Data\RuneData.cs" />
-    <Compile Include="Data\SkinData.cs" />
-    <Compile Include="Data\TransferData.cs" />
+    <Compile Include="Classes\Champion.cs" />
+    <Compile Include="Classes\LeagueData.cs" />
+    <Compile Include="Classes\Rune.cs" />
+    <Compile Include="Classes\RuneData.cs" />
+    <Compile Include="Classes\SkinData.cs" />
+    <Compile Include="Classes\TransferData.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="Classes\Utils.cs" />
     <Compile Include="Views\AccountsWindow.xaml.cs">
       <DependentUpon>AccountsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\AccountWindow.xaml.cs">
-      <DependentUpon>AccountWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\RunesWindow.xaml.cs">
-      <DependentUpon>RunesWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SkinsWindow.xaml.cs">
-      <DependentUpon>SkinsWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\TransfersWindow.xaml.cs">
-      <DependentUpon>TransfersWindow.xaml</DependentUpon>
+    <Compile Include="Views\AccountEditWindow.xaml.cs">
+      <DependentUpon>AccountEditWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Views\AccountsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\AccountEditWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -102,7 +98,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ChampionsWindow.xaml">
+    <Page Include="Views\ExportWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ImportWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -110,14 +110,20 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Data\Account.cs" />
+    <Compile Include="Classes\Account.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Data\ChampionData.cs" />
-    <Compile Include="Views\ChampionsWindow.xaml.cs">
-      <DependentUpon>ChampionsWindow.xaml</DependentUpon>
+    <Compile Include="Classes\ChampionData.cs" />
+    <Compile Include="Views\AccountWindow.xaml.cs">
+      <DependentUpon>AccountWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExportWindow.xaml.cs">
+      <DependentUpon>ExportWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ImportWindow.xaml.cs">
+      <DependentUpon>ImportWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -126,18 +132,6 @@
     <Page Include="Resources\Icons.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\RunesWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SkinsWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\TransfersWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -159,19 +153,19 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="League\Champions.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="League\Champions.version">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="League\Client.version">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="League\Runes.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="League\Runes.version">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

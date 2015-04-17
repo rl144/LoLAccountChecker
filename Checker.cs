@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using LoLAccountChecker.Data;
+using LoLAccountChecker.Classes;
 using LoLAccountChecker.Views;
 
 #endregion

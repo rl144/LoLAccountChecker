@@ -27,6 +27,7 @@ You can also import and export checked accounts that you want to see later.
 
  * [PvPNetConnect](https://github.com/madk/PVPNetConnect)
 
-
+### Export
+You can export your accounts to a JSON file (this way you can import it later), or by creating your own layout. Check [Custom Export](https://github.com/madk/LoLAccountChecker/blob/master/Custom%20Export.md) to see the variables and some examples.
 
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CHEV6LWPMHUMW)

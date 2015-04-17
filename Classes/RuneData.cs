@@ -19,22 +19,13 @@
 
 #endregion
 
-#region
-
-using LoLAccountChecker.Data;
-
-#endregion
-
-namespace LoLAccountChecker.Views
+namespace LoLAccountChecker.Classes
 {
-    public partial class TransfersWindow
+    public class RuneData
     {
-        public TransfersWindow(Account account)
-        {
-            InitializeComponent();
-
-            Title = string.Format("{0} - Transfers", account.Username);
-            _transfersGrid.ItemsSource = account.Transfers;
-        }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public int Tier { get; set; }
+        public int Quantity { get; set; }
     }
 }

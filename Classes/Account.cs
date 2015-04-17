@@ -23,11 +23,12 @@
 
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using PVPNetConnect;
 
 #endregion
 
-namespace LoLAccountChecker.Data
+namespace LoLAccountChecker.Classes
 {
     public class Account
     {
@@ -45,12 +46,11 @@ namespace LoLAccountChecker.Data
         public string EmailStatus { get; set; }
         public int RpBalance { get; set; }
         public int IpBalance { get; set; }
-        public int Champions { get; set; }
-        public int Skins { get; set; }
         public int RunePages { get; set; }
         public int Refunds { get; set; }
         public string SoloQRank { get; set; }
         public DateTime LastPlay { get; set; }
+        public DateTime CheckedTime { get; set; }
         public List<ChampionData> ChampionList { get; set; }
         public List<SkinData> SkinList { get; set; }
         public List<RuneData> Runes { get; set; }
@@ -59,6 +59,19 @@ namespace LoLAccountChecker.Data
         public Result State { get; set; }
         public Region Region { get; set; }
 
+        [JsonIgnore]
+        public int Champions
+        {
+            get { return ChampionList != null ? ChampionList.Count : 0; }
+        }
+
+        [JsonIgnore]
+        public int Skins
+        {
+            get { return SkinList != null ? SkinList.Count : 0; }
+        }
+
+        [JsonIgnore]
         public string PasswordDisplay
         {
             get
@@ -72,6 +85,7 @@ namespace LoLAccountChecker.Data
             }
         }
 
+        [JsonIgnore]
         public string StateDisplay
         {
             get

@@ -46,11 +46,12 @@
             <RowDefinition Height="70" />
         </Grid.RowDefinitions>
 
-        <ProgressBar x:Name="_progressBar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Row="0"
+        <ProgressBar x:Name="ProgressBar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Row="0"
                      Height="5" />
 
-        <DataGrid x:Name="_accountsDataGrid" Margin="0,10,0,10" HorizontalAlignment="Stretch"
-                  VerticalAlignment="Stretch" ItemsSource="{Binding Account}" AutoGenerateColumns="False" Grid.Row="0"
+        <DataGrid x:Name="AccountsDataGrid" Margin="0,10,0,10" HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch" ItemsSource="{Binding Checker.Accounts, NotifyOnSourceUpdated=True}"
+                  AutoGenerateColumns="False" Grid.Row="0"
                   IsReadOnly="True" GridLinesVisibility="All">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Username}" Header="Username" />
@@ -59,45 +60,45 @@
                 <DataGridTextColumn Binding="{Binding EmailStatus}" Header="Email Status" />
                 <DataGridTextColumn Binding="{Binding RpBalance}" Header="RP" />
                 <DataGridTextColumn Binding="{Binding IpBalance}" Header="IP" />
-                <DataGridTextColumn Binding="{Binding Champions}" Header="Champions"/>
+                <DataGridTextColumn Binding="{Binding Champions}" Header="Champions" />
                 <DataGridTextColumn Binding="{Binding Skins}" Header="Skins" />
                 <DataGridTextColumn Binding="{Binding RunePages}" Header="Rune Pages" />
-                <DataGridTextColumn Binding="{Binding Refunds}" Header="Refunds"/>
+                <DataGridTextColumn Binding="{Binding Refunds}" Header="Refunds" />
                 <DataGridTextColumn Binding="{Binding SoloQRank}" Header="Rank" />
                 <DataGridTextColumn Binding="{Binding LastPlay, StringFormat=\{0:dd-MM-yyyy HH:mm\}}"
-                                    Header="Last Play" Width="100"/>
+                                    Header="Last Play" Width="100" />
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Copy combo" Click="CmCopyComboClick" />
-                    <MenuItem Header="Champions" Click="CmViewChampionsClick" />
-                    <MenuItem Header="Skins" Click="CmViewSkinsClick" />
-                    <MenuItem Header="Runes" Click="CmViewRunesClick" />
-                    <MenuItem Header="Transfers" Click="CmViewTransfersClick" />
+                    <MenuItem Header="View" Click="CmViewAccount" />
+                    <MenuItem Header="Copy">
+                        <MenuItem Header="Username" Click="CmCopyUsername" />
+                        <MenuItem Header="Password" Click="CmCopyPassword" />
+                        <MenuItem Header="Combo" Click="CmCopyCombo" />
+                    </MenuItem>
+                    <MenuItem Header="Export">
+                        <MenuItem Header="JSON" Click="CmExportJson" />
+                        <MenuItem Header="Custom" Click="CmExportCustom" />
+                    </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>
 
         <!-- Labels -->
-        <Label x:Name="_statusLabel" Content="Status: Stopped" HorizontalAlignment="Left" Margin="10,5,0,0"
+        <Label x:Name="StatusLabel" Content="Status: Stopped" HorizontalAlignment="Left" Margin="10,5,0,0"
                VerticalAlignment="Top" Width="121" Grid.Row="1" />
-        <Label x:Name="_checkedLabel" Content="Checked: 0/0" HorizontalAlignment="Left" Margin="10,30,0,0"
+        <Label x:Name="CheckedLabel" Content="Checked: 0/0" HorizontalAlignment="Left" Margin="10,30,0,0"
                VerticalAlignment="Center" Grid.Row="1" />
 
-        <!-- Region -->
-        <Label Content="Region:" HorizontalAlignment="Left" Margin="140,5,0,0" VerticalAlignment="Top" Grid.Row="1" />
-        <ComboBox x:Name="_regionsComboBox" HorizontalAlignment="Left" Height="18" Margin="140,30,0,0" Grid.Row="1"
-                  VerticalAlignment="Center" Width="119" SelectionChanged="CbRegionOnChangeSelection" />
-
         <!-- Buttons -->
-        <Button x:Name="_importButton" Content="Import" HorizontalAlignment="Right" Height="26" Margin="0,5,120,0"
+        <Button x:Name="ImportButton" Content="Import" HorizontalAlignment="Right" Height="26" Margin="0,5,120,0"
                 Grid.Row="1" VerticalAlignment="Top" Width="100" Click="BtnImportClick" />
-        <Button x:Name="_accountsButton" Content="Accounts" HorizontalAlignment="Right" Height="26" Margin="0,5,10,0"
+        <Button x:Name="AccountsButton" Content="Accounts" HorizontalAlignment="Right" Height="26" Margin="0,5,10,0"
                 Grid.Row="1" VerticalAlignment="Top" Width="100" Click="BtnAccountsClick" />
 
-        <Button x:Name="_startButton" Content="Start" HorizontalAlignment="Right" Height="26" Margin="0,0,10,5"
+        <Button x:Name="StartButton" Content="Start" HorizontalAlignment="Right" Height="26" Margin="0,0,10,5"
                 Grid.Row="1" VerticalAlignment="Bottom" Width="100" Click="BtnStartCheckingClick" IsEnabled="False" />
-        <Button x:Name="_exportButton" Content="Export" HorizontalAlignment="Right" Height="26" Margin="0,0,120,5"
+        <Button x:Name="ExportButton" Content="Export" HorizontalAlignment="Right" Height="26" Margin="0,0,120,5"
                 Grid.Row="1" VerticalAlignment="Bottom" Width="100" Click="BtnExportToFileClick" IsEnabled="False" />
     </Grid>
 </Controls:MetroWindow>

@@ -23,6 +23,7 @@
 
 using System.Windows;
 using System.Windows.Threading;
+using LoLAccountChecker.Classes;
 
 #endregion
 

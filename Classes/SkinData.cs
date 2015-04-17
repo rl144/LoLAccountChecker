@@ -21,24 +21,29 @@
 
 #region
 
-using LoLAccountChecker.Data;
+using Newtonsoft.Json;
 
 #endregion
 
-namespace LoLAccountChecker.Views
+namespace LoLAccountChecker.Classes
 {
-    public partial class ChampionsWindow
+    public class SkinData
     {
-        public ChampionsWindow(Account account)
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int ChampionId { get; set; }
+        public bool StillObtainable { get; set; }
+
+        [JsonIgnore]
+        public Champion Champion
         {
-            InitializeComponent();
+            get { return LeagueData.GetChampion(ChampionId); }
+        }
 
-            Title = string.Format("{0} - Champions", account.Username);
-
-            if (account.ChampionList != null)
-            {
-                account.ChampionList.ForEach(champion => _championsDataGrid.Items.Add(champion));
-            }
+        [JsonIgnore]
+        public Skin Skin
+        {
+            get { return LeagueData.GetSkin(Champion, Id); }
         }
     }
 }

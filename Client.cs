@@ -27,7 +27,7 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using LoLAccountChecker.Data;
+using LoLAccountChecker.Classes;
 using PVPNetConnect;
 
 #endregion
@@ -108,8 +108,6 @@ namespace LoLAccountChecker
                 Data.Level = (int) loginPacket.AllSummonerData.SummonerLevel.Level;
                 Data.RpBalance = (int) loginPacket.RpBalance;
                 Data.IpBalance = (int) loginPacket.IpBalance;
-                Data.Champions = Data.ChampionList.Count;
-                Data.Skins = Data.SkinList.Count;
                 Data.RunePages = loginPacket.AllSummonerData.SpellBook.BookPages.Count;
 
                 if (loginPacket.EmailStatus != null)
@@ -147,6 +145,7 @@ namespace LoLAccountChecker
                     Data.LastPlay = lastGame.CreateDate;
                 }
 
+                Data.CheckedTime = DateTime.Now;
                 Data.State = Account.Result.Success;
             }
             catch (Exception e)
@@ -174,7 +173,8 @@ namespace LoLAccountChecker
             var region = regexRegion.Match(storeUrl).Groups[1];
 
             var storeUrlMisc = string.Format("https://store.{0}.lol.riotgames.com/store/tabs/view/misc", region);
-            var storeUrlHist = string.Format("https://store.{0}.lol.riotgames.com/store/accounts/rental_history", region);
+            var storeUrlHist = string.Format(
+                "https://store.{0}.lol.riotgames.com/store/accounts/rental_history", region);
 
             var cookies = new CookieContainer();
 
@@ -225,11 +225,11 @@ namespace LoLAccountChecker
                     Data.ChampionList.Add(
                         new ChampionData
                         {
+                            Id = championData.Id,
                             Name = championData.Name,
                             PurchaseDate =
                                 new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(
-                                    Math.Round(champion.PurchaseDate / 1000d)),
-                            Champion = championData
+                                    Math.Round(champion.PurchaseDate / 1000d))
                         });
                 }
 
@@ -245,10 +245,10 @@ namespace LoLAccountChecker
                     Data.SkinList.Add(
                         new SkinData
                         {
+                            Id = skinData.Id,
                             Name = skinData.Name,
                             StillObtainable = skin.StillObtainable,
-                            Champion = championData,
-                            Skin = skinData
+                            ChampionId = championData.Id
                         });
                 }
             }

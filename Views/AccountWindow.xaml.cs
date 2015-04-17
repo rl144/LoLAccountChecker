@@ -21,11 +21,9 @@
 
 #region
 
-using System;
-using System.Linq;
+using System.Diagnostics;
 using System.Windows;
-using LoLAccountChecker.Data;
-using PVPNetConnect;
+using LoLAccountChecker.Classes;
 
 #endregion
 
@@ -33,120 +31,46 @@ namespace LoLAccountChecker.Views
 {
     public partial class AccountWindow
     {
-        public static AccountWindow Instance;
-
-        private Account _account;
-
-        public AccountWindow(Account account = null)
+        public AccountWindow(Account account)
         {
             InitializeComponent();
 
-            _regionBox.ItemsSource = Enum.GetValues(typeof(Region)).Cast<Region>();
-            _regionBox.SelectedItem = Settings.Config.SelectedRegion;
+            Title = string.Format("{0} - View account", account.Username);
 
-            Instance = this;
-
-            Loaded += (o, a) => UpdateWindow();
-            Closed += (o, a) => Instance = null;
-
-            if (account == null)
+            if (account.ChampionList != null)
             {
-                return;
+                ChampionsGrid.ItemsSource = account.ChampionList;
             }
 
-            _account = account;
-
-            _usernameBox.Text = _account.Username;
-            _passwordBox.Password = _account.Password;
-            _passwordBoxText.Text = _account.Password;
-            _regionBox.SelectedItem = _account.Region;
-        }
-
-        public void UpdateWindow()
-        {
-            if (!Dispatcher.CheckAccess())
+            if (account.SkinList != null)
             {
-                Dispatcher.Invoke(UpdateWindow);
-                return;
+                SkinsGrid.ItemsSource = account.SkinList;
             }
 
-            if (Settings.Config.ShowPasswords)
+            if (account.Runes != null)
             {
-                _passwordBoxText.Text = _passwordBox.Password;
-                _passwordBoxText.Visibility = Visibility.Visible;
-                _passwordBox.Visibility = Visibility.Hidden;
+                RunesGrid.ItemsSource = account.Runes;
             }
-            else
+
+            if (account.Transfers != null)
             {
-                _passwordBox.Password = _passwordBoxText.Text;
-                _passwordBoxText.Visibility = Visibility.Hidden;
-                _passwordBox.Visibility = Visibility.Visible;
+                TransfersGrid.ItemsSource = account.Transfers;
             }
         }
 
-        private void BtnSaveClick(object sender, RoutedEventArgs e)
+        private void CmViewModel(object sender, RoutedEventArgs e)
         {
-            var password = Settings.Config.ShowPasswords ? _passwordBoxText.Text : _passwordBox.Password;
+            var selectedSkin = SkinsGrid.SelectedItem as SkinData;
 
-            if (string.IsNullOrEmpty(_usernameBox.Text) || string.IsNullOrWhiteSpace(password))
+            if (selectedSkin == null)
             {
-                _resultLabel.Content = "Insert a username and password!";
                 return;
             }
 
-            if (_account != null)
-            {
-                if (Checker.IsChecking)
-                {
-                    _resultLabel.Content = "Stop the checker before saving.";
-                    return;
-                }
-
-                if (_account.Username != _usernameBox.Text &&
-                    Checker.Accounts.Any(a => a.Username.ToLower() == _usernameBox.Text.ToLower()))
-                {
-                    _resultLabel.Content = "Username already exists!";
-                    return;
-                }
-
-                var account = Checker.Accounts.FirstOrDefault(a => a == _account);
-
-                if (account != null)
-                {
-                    account.Username = _usernameBox.Text;
-                    account.Password = password;
-                    account.Region = (Region) _regionBox.SelectedItem;
-                    _account = account;
-                    _resultLabel.Content = "Account successfuly edited!";
-                }
-            }
-            else
-            {
-                if (Checker.Accounts.Any(a => a.Username.ToLower() == _usernameBox.Text.ToLower()))
-                {
-                    _resultLabel.Content = "Username already exists!";
-                    return;
-                }
-
-                var newAccount = new Account
-                {
-                    Username = _usernameBox.Text,
-                    Password = password,
-                    Region = (Region) _regionBox.SelectedItem
-                };
-
-                _account = newAccount;
-                Checker.Accounts.Add(_account);
-
-                _resultLabel.Content = "Account successfuly added!";
-            }
-
-            if (AccountsWindow.Instance != null)
-            {
-                AccountsWindow.Instance.RefreshAccounts();
-            }
-
-            MainWindow.Instance.UpdateControls();
+            Process.Start(
+                string.Format(
+                    "http://www.lolking.net/models/?champion={0}&skin={1}", selectedSkin.ChampionId,
+                    selectedSkin.Skin.Number - 1));
         }
     }
 }
