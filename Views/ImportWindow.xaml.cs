@@ -59,7 +59,9 @@ namespace LoLAccountChecker.Views
             {
                 Checker.Accounts.Add(account);
             }
-
+            
+            MainWindow.Instance.UpdateControls();
+            
             Close();
         }
     }
