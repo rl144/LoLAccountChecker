@@ -61,6 +61,7 @@ namespace LoLAccountChecker.Views
             }
             
             MainWindow.Instance.UpdateControls();
+            AccountsWindow.Instance.RefreshAccounts();
             
             Close();
         }
